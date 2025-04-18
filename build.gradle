@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group = 'dev.karmanov'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter:3.4.4'
+    implementation 'org.telegram:telegrambots:6.9.7.1'
+}
+
+test {
+    useJUnitPlatform()
+}
