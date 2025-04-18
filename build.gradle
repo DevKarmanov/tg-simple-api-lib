@@ -19,7 +19,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter:3.4.4'
     implementation 'org.telegram:telegrambots:6.9.7.1'
 }
-
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
 test {
     useJUnitPlatform()
 }
