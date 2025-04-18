@@ -4,16 +4,7 @@
 
 ## 📦 Подключение
 
-**Maven**:
-
-```xml
-<!-- пока не работает -->
-<dependency>
-    <groupId>your.group.id</groupId>
-    <artifactId>tg-simple-api</artifactId>
-    <version>your-version</version>
-</dependency>
-```
+[![](https://jitpack.io/v/DevKarmanov/tg-simple-api-lib.svg)](https://jitpack.io/#DevKarmanov/tg-simple-api-lib)
 
 ## 🚀 Быстрый старт
 
