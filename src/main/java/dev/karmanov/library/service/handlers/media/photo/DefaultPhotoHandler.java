@@ -1,6 +1,6 @@
 package dev.karmanov.library.service.handlers.media.photo;
 
-import dev.karmanov.library.model.methodHolders.PhotoMethodHolder;
+import dev.karmanov.library.model.methodHolders.media.PhotoMethodHolder;
 import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;

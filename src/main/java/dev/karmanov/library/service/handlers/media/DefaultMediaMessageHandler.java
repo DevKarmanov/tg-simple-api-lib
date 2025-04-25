@@ -1,7 +1,7 @@
 package dev.karmanov.library.service.handlers.media;
 
 import dev.karmanov.library.model.message.MediaType;
-import dev.karmanov.library.model.methodHolders.MediaMethodHolder;
+import dev.karmanov.library.model.methodHolders.media.MediaMethodHolder;
 import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.media.MediaQualifier;

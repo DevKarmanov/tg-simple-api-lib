@@ -1,11 +1,12 @@
 package dev.karmanov.library.model.methodHolders;
 
+import dev.karmanov.library.model.methodHolders.abstractHolders.BaseMethodHolder;
+
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class SpecialAccessMethodHolder extends MethodHolder {
+public class SpecialAccessMethodHolder extends BaseMethodHolder {
     private Set<String> roles;
 
     public SpecialAccessMethodHolder(Method method, Set<String> roles) {

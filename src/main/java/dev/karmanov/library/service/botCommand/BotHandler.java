@@ -4,7 +4,9 @@ import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.model.user.UserContext;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
+import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
+import dev.karmanov.library.service.handlers.media.voice.VoiceHandler;
 import dev.karmanov.library.service.handlers.schedule.ScheduledHandler;
 import dev.karmanov.library.service.handlers.text.TextHandler;
 import dev.karmanov.library.service.register.utils.media.MediaQualifier;
@@ -30,6 +32,8 @@ public class BotHandler {
     private TextHandler textHandler;
     private PhotoHandler photoHandler;
     private CallBackHandler callBackHandler;
+    private DocumentHandler documentHandler;
+    private VoiceHandler voiceHandler;
     private ScheduledHandler scheduledHandler;
     private final AtomicBoolean isScheduled = new AtomicBoolean(false);
     private static final Logger logger = LoggerFactory.getLogger(BotHandler.class);
@@ -74,6 +78,16 @@ public class BotHandler {
         this.scheduledHandler = scheduledHandler;
     }
 
+    @Autowired(required = false)
+    public void setDocumentHandler(DocumentHandler documentHandler) {
+        this.documentHandler = documentHandler;
+    }
+
+    @Autowired(required = false)
+    public void setVoiceHandler(VoiceHandler voiceHandler) {
+        this.voiceHandler = voiceHandler;
+    }
+
     public void handleMessage(Update update) {
         initUserState(update);
 
@@ -100,11 +114,15 @@ public class BotHandler {
             } else if (userState.equals(UserState.AWAITING_PHOTO) && message.hasPhoto()) {
                 logger.info("User is awaiting a photo and it is present.");
                 executorService.execute(() -> photoHandler.handle(userAwaitingAction, update, manager));
-
+            } else if (userState.equals(UserState.AWAITING_DOCUMENT) && message.hasDocument()){
+                logger.info("User is awaiting a document and it is present.");
+                executorService.execute(()-> documentHandler.handle(userAwaitingAction,update,manager));
+            } else if (userState.equals(UserState.AWAITING_VOICE) && message.hasVoice()){
+                logger.info("User is awaiting a voice and it is present.");
+                executorService.execute(()-> voiceHandler.handle(userAwaitingAction,update,manager));
             } else if (userState.equals(UserState.AWAITING_MEDIA) && mediaQualifier.hasMedia(update) != null) {
                 logger.info("User is awaiting media and it is present.");
                 executorService.execute(() -> mediaHandler.handle(userAwaitingAction, update, manager));
-
             } else {
                 logger.warn("Unexpected message from user ID: {}. Current state: {}. Message: {}", userId, userState, message.getText());
             }

@@ -4,8 +4,12 @@ import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.callback.DefaultCallBackHandler;
 import dev.karmanov.library.service.handlers.media.DefaultMediaMessageHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
+import dev.karmanov.library.service.handlers.media.document.DefaultDocumentHandler;
+import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.DefaultPhotoHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
+import dev.karmanov.library.service.handlers.media.voice.DefaultVoiceHandler;
+import dev.karmanov.library.service.handlers.media.voice.VoiceHandler;
 import dev.karmanov.library.service.handlers.schedule.DefaultScheduledMethodHandler;
 import dev.karmanov.library.service.handlers.schedule.ScheduledHandler;
 import dev.karmanov.library.service.handlers.text.DefaultTextHandler;
@@ -115,4 +119,15 @@ public class TgSimpleApiConfig {
     @Bean
     @ConditionalOnMissingBean(RoleChecker.class)
     public RoleChecker roleChecker(){return new DefaultRoleChecker();}
+
+    @Bean
+    @ConditionalOnMissingBean(DocumentHandler.class)
+    public DocumentHandler documentHandler(){
+        return new DefaultDocumentHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(VoiceHandler.class)
+    public VoiceHandler voiceHandler(){return new DefaultVoiceHandler();
+    }
 }

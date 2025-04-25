@@ -1,21 +1,21 @@
 package dev.karmanov.library.model.methodHolders;
 
 import dev.karmanov.library.model.message.TextType;
+import dev.karmanov.library.model.methodHolders.abstractHolders.OrderedActionMethodHolder;
 
 import java.lang.reflect.Method;
 
-public class TextMethodHolder extends ActionMethodHolder{
+public class TextMethodHolder extends OrderedActionMethodHolder {
     private TextType textType;
     private String text;
     private boolean isRegex;
     private int order;
 
     public TextMethodHolder(Method method, String actionName, TextType textType, String text, boolean isRegex, int order) {
-        super(method, actionName);
+        super(method, actionName,order);
         this.textType = textType;
         this.text = text;
         this.isRegex = isRegex;
-        this.order = order;
     }
 
     public TextType getTextType() {

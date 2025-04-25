@@ -41,7 +41,7 @@ public class DefaultStateManager implements StateManager {
     }
 
     @Override
-    public void setUserRole(Long userId, String... roles) {
+    public void addUserRole(Long userId, String... roles) {
         User user = users.get(userId);
         String oldRoles = (user != null) ? String.join(", ", user.getRoles()) : null;
 
@@ -111,7 +111,7 @@ public class DefaultStateManager implements StateManager {
     @Override
     public void resetState(Long userId) {
         setState(userId,new UserContext(UserState.DEFAULT, Collections.singletonList("/start")));
-        setUserRole(userId,"user");
+        addUserRole(userId,"user");
     }
 
     @Override

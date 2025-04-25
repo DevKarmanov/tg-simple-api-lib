@@ -4,6 +4,10 @@ import dev.karmanov.library.annotation.botActivity.RoleBasedAccess;
 import dev.karmanov.library.annotation.userActivity.*;
 import dev.karmanov.library.model.message.TextType;
 import dev.karmanov.library.model.methodHolders.*;
+import dev.karmanov.library.model.methodHolders.media.DocumentMethodHolder;
+import dev.karmanov.library.model.methodHolders.media.MediaMethodHolder;
+import dev.karmanov.library.model.methodHolders.media.PhotoMethodHolder;
+import dev.karmanov.library.model.methodHolders.media.VoiceMethodHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -19,15 +23,13 @@ import java.util.function.Consumer;
 public class BotCommandRegister {
     private final List<MediaMethodHolder> botMediaMethods = new ArrayList<>();
     private final List<TextMethodHolder> botTextMethods = new ArrayList<>();
-
-    private final Map<Method,SpecialAccessMethodHolder> specialAccessMethodHolders = new HashMap<>();
-
+    private final Map<Method, SpecialAccessMethodHolder> specialAccessMethodHolders = new HashMap<>();
     private final List<PhotoMethodHolder> botPhotoMethods = new ArrayList<>();
     private final List<ScheduledMethodHolder> scheduledMethods = new ArrayList<>();
+    private final List<DocumentMethodHolder> documentMethods = new ArrayList<>();
+    private final List<VoiceMethodHolder> voiceMethods = new ArrayList<>();
     private final Map<String, String> beanNames = new HashMap<>();
-
     private ApplicationContext context;
-
     private final Map<Class<? extends Annotation>, Consumer<Method>> handlerMap = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(BotCommandRegister.class);
 
@@ -38,6 +40,8 @@ public class BotCommandRegister {
         handlerMap.put(BotPhoto.class, this::processPhotoMessage);
         handlerMap.put(BotScheduled.class, this::processScheduledMethod);
         handlerMap.put(RoleBasedAccess.class, this::processSpecialAccessMethod);
+        handlerMap.put(BotDocument.class, this::processDocument);
+        handlerMap.put(BotVoice.class, this::processVoice);
     }
 
     @Autowired
@@ -63,6 +67,14 @@ public class BotCommandRegister {
 
     public SpecialAccessMethodHolder getSpecialAccessMethodHolders(Method method) {
         return specialAccessMethodHolders.get(method);
+    }
+
+    public List<DocumentMethodHolder> getDocumentMethods() {
+        return documentMethods;
+    }
+
+    public List<VoiceMethodHolder> getVoiceMethods() {
+        return voiceMethods;
     }
 
     public void scan(){
@@ -106,6 +118,18 @@ public class BotCommandRegister {
             throw new RuntimeException("No bean found for method: " + method.getName());
         }
         return context.getBean(beanName);
+    }
+
+    private void processDocument(Method method) {
+        BotDocument botDocument = method.getAnnotation(BotDocument.class);
+        documentMethods.add(new DocumentMethodHolder(
+                method,
+                botDocument.actionName(),
+                botDocument.order(),
+                botDocument.minFileSize(),
+                botDocument.maxFileSize(),
+                botDocument.fileExtensions(),
+                botDocument.fileNameRegex()));
     }
 
     private void processSpecialAccessMethod(Method method){
@@ -175,6 +199,17 @@ public class BotCommandRegister {
                 botMedia.actionName(),
                 botMedia.mediaType(),
                 botMedia.order()
+        ));
+    }
+
+    private void processVoice(Method method) {
+        BotVoice botVoice = method.getAnnotation(BotVoice.class);
+        voiceMethods.add(new VoiceMethodHolder(
+                method,
+                botVoice.actionName(),
+                botVoice.order(),
+                botVoice.maxDurationSeconds(),
+                botVoice.minDurationSeconds()
         ));
     }
 }

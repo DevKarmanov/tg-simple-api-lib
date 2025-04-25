@@ -12,7 +12,7 @@ public interface StateManager extends StateChangeNotifier, RoleChangeNotifier {
 
     void setState(Long userId, UserContext state);
 
-    void setUserRole(Long userId, String...roles);
+    void addUserRole(Long userId, String...roles);
     boolean removeUserRole(Long userId, String...roles);
 
     Set<String> getUserRoles(Long userId);

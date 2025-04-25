@@ -1,11 +1,13 @@
 package dev.karmanov.library.model.methodHolders;
 
+import dev.karmanov.library.model.methodHolders.abstractHolders.BaseMethodHolder;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ScheduledMethodHolder extends MethodHolder {
+public class ScheduledMethodHolder extends BaseMethodHolder {
     private int order;
     private String cron;
     private long fixedDelay;

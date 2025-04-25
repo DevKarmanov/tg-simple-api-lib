@@ -1,7 +1,6 @@
 package dev.karmanov.library.service.register.utils.user;
 
 import dev.karmanov.library.model.methodHolders.SpecialAccessMethodHolder;
-import dev.karmanov.library.service.handlers.text.DefaultTextHandler;
 import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
