@@ -10,6 +10,7 @@ import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Comparator;
@@ -44,13 +45,15 @@ public class DefaultCallBackHandler implements CallBackHandler {
     }
 
     @Override
-    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
-        String callBackName = update.getCallbackQuery().getData();
-        Long userId = update.getCallbackQuery().getFrom().getId();
+    public void handle(Set<String> userAwaitingAction, Update update) {
+        CallbackQuery callbackQuery = update.getCallbackQuery();
+        String callBackName = callbackQuery.getData();
+        Long chatId = callbackQuery.getMessage().getChatId();
+        Long userId = callbackQuery.getFrom().getId();
         logger.info("Handling callback with name: {}", callBackName);
 
         register.getBotTextMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,manager,register.getSpecialAccessMethodHolders(o.getMethod())))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> textTypeTextQualifier.textTypeCheck(o, callBackName, TextType.CALLBACK_DATA))
                 .sorted(Comparator.comparingInt(TextMethodHolder::getOrder))

@@ -6,10 +6,10 @@ import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.text.TextQualifier;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
-import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Comparator;
@@ -45,13 +45,15 @@ public class DefaultTextHandler implements TextHandler {
     }
 
     @Override
-    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
-        String text = update.getMessage().getText().toLowerCase(Locale.ROOT).strip();
-        Long userId = update.getMessage().getFrom().getId();
+    public void handle(Set<String> userAwaitingAction, Update update) {
+        Message message = update.getMessage();
+        String text = message.getText().toLowerCase(Locale.ROOT).strip();
+        Long userId = message.getFrom().getId();
+        Long chatId = message.getChatId();
         logger.info("Received text command: {}", text);
 
         register.getBotTextMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,manager,register.getSpecialAccessMethodHolders(o.getMethod())))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> textTypeTextQualifier.textTypeCheck(o, text, TextType.TEXT))
                 .sorted(Comparator.comparingInt(TextMethodHolder::getOrder))

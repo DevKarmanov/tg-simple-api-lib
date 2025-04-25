@@ -53,28 +53,8 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
         logger.info("Scheduled tasks started after first message");
     }
 
-    //todo собрать сразу все методы, а потом запланировать их отправку, а не находить их перед отправкой
     private void schedule(ScheduledMethodHolder scheduledMethod) {
-        Runnable task = () -> {
-            Set<Long> userIds = manager.getAllUserIds();
-            Set<Long> selectedUserIds = new HashSet<>();
-
-            for (Long userId : userIds) {
-                Set<String> methodRoles = scheduledMethod.getRoles();
-                if (methodRoles.isEmpty() || manager.getUserRoles(userId).stream().anyMatch(methodRoles::contains)) {
-                   selectedUserIds.add(userId);
-                }
-            }
-            Method method = scheduledMethod.getMethod();
-            Object bean = register.getBean(method);
-            Method proxy = ReflectionUtils.findMethod(bean.getClass(), method.getName(), method.getParameterTypes());
-
-            methodExecutor.executeMethod(proxy, selectedUserIds);
-        };
-
-        if (scheduledMethod.isRunOnStartup()){
-            task.run();
-        }
+        Runnable task = getTask(scheduledMethod);
 
         if (!scheduledMethod.getCron().isBlank()) {
             scheduler.schedule(
@@ -101,5 +81,29 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
             );
         }
 
+    }
+
+    private Runnable getTask(ScheduledMethodHolder scheduledMethod) {
+        Runnable task = () -> {
+            Set<Long> userIds = manager.getAllUserIds();
+            Set<Long> selectedUserIds = new HashSet<>();
+
+            for (Long userId : userIds) {
+                Set<String> methodRoles = scheduledMethod.getRoles();
+                if (methodRoles.isEmpty() || manager.getUserRoles(userId).stream().anyMatch(methodRoles::contains)) {
+                   selectedUserIds.add(userId);
+                }
+            }
+            Method method = scheduledMethod.getMethod();
+            Object bean = register.getBean(method);
+            Method proxy = ReflectionUtils.findMethod(bean.getClass(), method.getName(), method.getParameterTypes());
+
+            methodExecutor.executeMethod(proxy, selectedUserIds);
+        };
+
+        if (scheduledMethod.isRunOnStartup()){
+            task.run();
+        }
+        return task;
     }
 }

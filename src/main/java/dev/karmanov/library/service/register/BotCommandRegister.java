@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 
-//todo сделать интерфейс и в нем два метода scan() и getBean()
+//todo сделать интерфейс
 public class BotCommandRegister {
     private final List<MediaMethodHolder> botMediaMethods = new ArrayList<>();
     private final List<TextMethodHolder> botTextMethods = new ArrayList<>();

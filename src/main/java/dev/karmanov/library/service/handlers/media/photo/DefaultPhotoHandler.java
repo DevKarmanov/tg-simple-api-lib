@@ -4,7 +4,6 @@ import dev.karmanov.library.model.methodHolders.media.PhotoMethodHolder;
 import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
-import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,16 +47,17 @@ public class DefaultPhotoHandler implements PhotoHandler {
     }
 
     @Override
-    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update) {
         Message message = update.getMessage();
-        Long userId = update.getMessage().getFrom().getId();
+        Long userId = message.getFrom().getId();
+        Long chatId = message.getChatId();
         List<PhotoSize> photos = message.getPhoto();
 
         PhotoSize largestPhoto = photos.get(photos.size() - 1);
         logger.info("Handling photo with file ID: {}", largestPhoto.getFileId());
 
         register.getBotPhotoMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,manager,register.getSpecialAccessMethodHolders(o.getMethod())))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> {
                     double fileSize = largestPhoto.getFileSize() / 1024.0;

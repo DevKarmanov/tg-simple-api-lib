@@ -4,11 +4,11 @@ import dev.karmanov.library.model.methodHolders.media.DocumentMethodHolder;
 import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
-import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Arrays;
@@ -38,15 +38,17 @@ public class DefaultDocumentHandler implements DocumentHandler{
     }
 
     @Override
-    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
-        Document document = update.getMessage().getDocument();
-        Long userId = update.getMessage().getFrom().getId();
+    public void handle(Set<String> userAwaitingAction, Update update) {
+        Message message = update.getMessage();
+        Document document = message.getDocument();
+        Long userId = message.getFrom().getId();
+        Long chatId = message.getChatId();
         logger.info("Handling document: {}", document);
 
         double fileSize = document.getFileSize() / 1024.0;
 
         register.getDocumentMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,manager,register.getSpecialAccessMethodHolders(o.getMethod())))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o->document.getFileName().matches(o.getFileNameRegex()))
                 .filter(o->fileSize >= o.getMinFileSize() && fileSize <= o.getMaxFileSize())

@@ -3,6 +3,7 @@ package dev.karmanov.library.service.botCommand;
 import dev.karmanov.library.model.user.UserContext;
 import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
+import dev.karmanov.library.service.handlers.denied.AccessNotifier;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BotHandler {
     private StateManager manager;
+    private AccessNotifier accessNotifier;
     private ExecutorService executorService;
     private MediaQualifier mediaQualifier;
     private MediaHandler mediaHandler;
@@ -36,6 +38,11 @@ public class BotHandler {
     private ScheduledHandler scheduledHandler;
     private final AtomicBoolean isScheduled = new AtomicBoolean(false);
     private static final Logger logger = LoggerFactory.getLogger(BotHandler.class);
+
+    @Autowired(required = false)
+    public void setAccessNotifier(AccessNotifier accessNotifier) {
+        this.accessNotifier = accessNotifier;
+    }
 
     @Autowired(required = false)
     public void setMediaHandler(MediaHandler mediaHandler) {
@@ -103,27 +110,28 @@ public class BotHandler {
             logger.debug("Received message from user ID: {}", userId);
             logger.debug("Message details - ID: {}, Text: {}, Type: {}", message.getMessageId(), message.getText(), message.getClass().getSimpleName());
 
-            Set<UserState> userState = manager.getStates(userId);
+            Set<UserState> userStates = manager.getStates(userId);
             Set<String> userAwaitingAction = manager.getUserAction(userId);
-            logger.debug("Current user state: {}", userState);
+            logger.debug("Current user state: {}", userStates);
 
-            if (userState.contains(UserState.AWAITING_TEXT) && message.hasText()) {
+            if (userStates.contains(UserState.AWAITING_TEXT) && message.hasText()) {
                 logger.info("User is awaiting text and received: {}", message.getText());
-                executorService.execute(() -> textHandler.handle(userAwaitingAction, update, manager));
-            } else if (userState.contains(UserState.AWAITING_PHOTO) && message.hasPhoto()) {
+                executorService.execute(() -> textHandler.handle(userAwaitingAction, update));
+            } else if (userStates.contains(UserState.AWAITING_PHOTO) && message.hasPhoto()) {
                 logger.info("User is awaiting a photo and it is present.");
-                executorService.execute(() -> photoHandler.handle(userAwaitingAction, update, manager));
-            } else if (userState.contains(UserState.AWAITING_DOCUMENT) && message.hasDocument()){
+                executorService.execute(() -> photoHandler.handle(userAwaitingAction, update));
+            } else if (userStates.contains(UserState.AWAITING_DOCUMENT) && message.hasDocument()){
                 logger.info("User is awaiting a document and it is present.");
-                executorService.execute(()-> documentHandler.handle(userAwaitingAction,update,manager));
-            } else if (userState.contains(UserState.AWAITING_VOICE) && message.hasVoice()){
+                executorService.execute(()-> documentHandler.handle(userAwaitingAction,update));
+            } else if (userStates.contains(UserState.AWAITING_VOICE) && message.hasVoice()){
                 logger.info("User is awaiting a voice and it is present.");
-                executorService.execute(()-> voiceHandler.handle(userAwaitingAction,update,manager));
-            } else if (userState.contains(UserState.AWAITING_MEDIA) && mediaQualifier.hasMedia(update) != null) {
+                executorService.execute(()-> voiceHandler.handle(userAwaitingAction,update));
+            } else if (userStates.contains(UserState.AWAITING_MEDIA) && mediaQualifier.hasMedia(update) != null) {
                 logger.info("User is awaiting media and it is present.");
-                executorService.execute(() -> mediaHandler.handle(userAwaitingAction, update, manager));
+                executorService.execute(() -> mediaHandler.handle(userAwaitingAction, update));
             } else {
-                logger.warn("Unexpected message from user ID: {}. Current state: {}. Message: {}", userId, userState, message.getText());
+                logger.warn("Unexpected message from user ID: {}. Current state: {}. Message: {}", userId, userStates, message.getText());
+                accessNotifier.sendUnexpectedActionMessage(message.getChatId(),userStates);
             }
 
         } else if (update.hasCallbackQuery()) {
@@ -132,13 +140,16 @@ public class BotHandler {
 
             Long userId = callback.getFrom().getId();
 
-            Set<UserState> userState = manager.getStates(userId);
+            Set<UserState> userStates = manager.getStates(userId);
             Set<String> userAwaitingAction = manager.getUserAction(userId);
 
-            logger.debug("User ID: {}. Current state: {}. Awaiting actions: {}", userId, userState, userAwaitingAction);
+            logger.debug("User ID: {}. Current state: {}. Awaiting actions: {}", userId, userStates, userAwaitingAction);
 
-            if (userState.contains(UserState.AWAITING_CALLBACK)) {
-                executorService.execute(() -> callBackHandler.handle(userAwaitingAction, update, manager));
+            if (userStates.contains(UserState.AWAITING_CALLBACK)) {
+                executorService.execute(() -> callBackHandler.handle(userAwaitingAction, update));
+            }else {
+                logger.warn("Unexpected callback from user ID: {}. Current state: {}", userId, userStates);
+                accessNotifier.sendUnexpectedActionMessage(callback.getMessage().getChatId(),userStates);
             }
         }
     }

@@ -4,10 +4,10 @@ import dev.karmanov.library.model.methodHolders.media.VoiceMethodHolder;
 import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
-import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.Voice;
 
@@ -36,15 +36,17 @@ public class DefaultVoiceHandler implements VoiceHandler{
     }
 
     @Override
-    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
-        Voice voice = update.getMessage().getVoice();
-        Long userId = update.getMessage().getFrom().getId();
+    public void handle(Set<String> userAwaitingAction, Update update) {
+        Message message = update.getMessage();
+        Voice voice = message.getVoice();
+        Long userId = message.getFrom().getId();
+        Long chatId = message.getChatId();
         int voiceDuration = voice.getDuration();
 
         logger.info("Handling voice: {}", voice);
 
         register.getVoiceMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,manager,register.getSpecialAccessMethodHolders(o.getMethod())))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o->voiceDuration >= o.getMinDurationSeconds() && voiceDuration <= o.getMaxDurationSeconds())
                 .sorted(Comparator.comparingInt(VoiceMethodHolder::getOrder))

@@ -6,10 +6,10 @@ import dev.karmanov.library.service.register.BotCommandRegister;
 import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.media.MediaQualifier;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
-import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Comparator;
@@ -17,7 +17,6 @@ import java.util.Set;
 
 public class DefaultMediaMessageHandler implements MediaHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultMediaMessageHandler.class);
-
     private MediaQualifier mediaAvailabilityQualifier;
     private BotCommandRegister register;
 
@@ -45,13 +44,15 @@ public class DefaultMediaMessageHandler implements MediaHandler {
         this.mediaAvailabilityQualifier = qualifier;
     }
     @Override
-    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update) {
         MediaType type = mediaAvailabilityQualifier.hasMedia(update);
-        Long userId = update.getMessage().getFrom().getId();
+        Message message = update.getMessage();
+        Long userId = message.getFrom().getId();
+        Long chatId = message.getChatId();
         logger.info("Handling media message of type: {}", type);
 
         register.getBotMediaMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,manager,register.getSpecialAccessMethodHolders(o.getMethod())))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> o.getMediaType().equals(type))
                 .sorted(Comparator.comparingInt(MediaMethodHolder::getOrder))

@@ -2,6 +2,8 @@ package dev.karmanov.library.config;
 
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.callback.DefaultCallBackHandler;
+import dev.karmanov.library.service.handlers.denied.AccessNotifier;
+import dev.karmanov.library.service.handlers.denied.DefaultAccessNotifier;
 import dev.karmanov.library.service.handlers.media.DefaultMediaMessageHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DefaultDocumentHandler;
@@ -102,6 +104,12 @@ public class TgSimpleApiConfig {
     @ConditionalOnMissingBean(MediaHandler.class)
     public MediaHandler mediaHandler(){
         return new DefaultMediaMessageHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(AccessNotifier.class)
+    public AccessNotifier accessNotifier(DefaultAbsSender sender){
+        return new DefaultAccessNotifier(sender);
     }
 
     @Bean
