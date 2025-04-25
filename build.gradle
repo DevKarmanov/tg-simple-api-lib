@@ -21,6 +21,7 @@ dependencies {
     implementation 'org.telegram:telegrambots:6.9.7.1'
 }
 tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "-parameters"
     options.encoding = 'UTF-8'
 }
 publishing {
