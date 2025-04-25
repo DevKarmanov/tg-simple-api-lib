@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.Voice;
 
 import java.util.Comparator;
-import java.util.List;
+import java.util.Set;
 
 public class DefaultVoiceHandler implements VoiceHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultVoiceHandler.class);
@@ -36,7 +36,7 @@ public class DefaultVoiceHandler implements VoiceHandler{
     }
 
     @Override
-    public void handle(List<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
         Voice voice = update.getMessage().getVoice();
         Long userId = update.getMessage().getFrom().getId();
         int voiceDuration = voice.getDuration();

@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class DefaultTextHandler implements TextHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTextHandler.class);
@@ -45,7 +45,7 @@ public class DefaultTextHandler implements TextHandler {
     }
 
     @Override
-    public void handle(List<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
         String text = update.getMessage().getText().toLowerCase(Locale.ROOT).strip();
         Long userId = update.getMessage().getFrom().getId();
         logger.info("Received text command: {}", text);

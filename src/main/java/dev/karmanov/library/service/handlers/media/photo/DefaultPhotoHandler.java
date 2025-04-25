@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class DefaultPhotoHandler implements PhotoHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultPhotoHandler.class);
@@ -47,7 +48,7 @@ public class DefaultPhotoHandler implements PhotoHandler {
     }
 
     @Override
-    public void handle(List<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
         Message message = update.getMessage();
         Long userId = update.getMessage().getFrom().getId();
         List<PhotoSize> photos = message.getPhoto();

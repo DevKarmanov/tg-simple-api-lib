@@ -1,43 +1,55 @@
 package dev.karmanov.library.model.user;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UserContext {
-    private UserState userState;
-    private List<String> actionData;
+    private Set<UserState> userStates;
+    private Set<String> actionData;
 
-    public UserContext(UserState userState, List<String> actionData) {
-        this.userState = userState;
-        this.actionData = actionData;
+    private UserContext(){}
+
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public UserState getUserState() {
-        return userState;
+    public Set<UserState> getUserStates() {
+        return userStates;
     }
 
-    public void setUserState(UserState userState) {
-        this.userState = userState;
-    }
-
-    public List<String> getActionData() {
+    public Set<String> getActionData() {
         return actionData;
     }
 
-    public void setActionData(List<String> actionData) {
-        this.actionData = actionData;
-    }
+    public static class Builder {
+        private final Set<UserState> userStates = new HashSet<>();
+        private final Set<String> actionData = new HashSet<>();
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        UserContext that = (UserContext) object;
-        return userState == that.userState && Objects.equals(actionData, that.actionData);
-    }
+        public Builder addState(UserState userState){
+            this.userStates.add(userState);
+            return this;
+        }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(userState, actionData);
+        public Builder addState(Set<UserState> userStates){
+            this.userStates.addAll(userStates);
+            return this;
+        }
+
+        public Builder addActionData(String actionData){
+            this.actionData.add(actionData);
+            return this;
+        }
+
+        public Builder addActionData(Set<String> actionData){
+            this.actionData.addAll(actionData);
+            return this;
+        }
+
+        public UserContext build(){
+            UserContext userContext = new UserContext();
+            userContext.userStates = this.userStates;
+            userContext.actionData = this.actionData;
+            return userContext;
+        }
     }
 }

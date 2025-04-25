@@ -1,7 +1,7 @@
 package dev.karmanov.library.service.botCommand;
 
-import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.model.user.UserContext;
+import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
@@ -19,8 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -104,23 +103,23 @@ public class BotHandler {
             logger.debug("Received message from user ID: {}", userId);
             logger.debug("Message details - ID: {}, Text: {}, Type: {}", message.getMessageId(), message.getText(), message.getClass().getSimpleName());
 
-            UserState userState = manager.getState(userId);
-            List<String> userAwaitingAction = manager.getUserAction(userId);
+            Set<UserState> userState = manager.getStates(userId);
+            Set<String> userAwaitingAction = manager.getUserAction(userId);
             logger.debug("Current user state: {}", userState);
 
-            if (userState.equals(UserState.AWAITING_TEXT) && message.hasText()) {
+            if (userState.contains(UserState.AWAITING_TEXT) && message.hasText()) {
                 logger.info("User is awaiting text and received: {}", message.getText());
                 executorService.execute(() -> textHandler.handle(userAwaitingAction, update, manager));
-            } else if (userState.equals(UserState.AWAITING_PHOTO) && message.hasPhoto()) {
+            } else if (userState.contains(UserState.AWAITING_PHOTO) && message.hasPhoto()) {
                 logger.info("User is awaiting a photo and it is present.");
                 executorService.execute(() -> photoHandler.handle(userAwaitingAction, update, manager));
-            } else if (userState.equals(UserState.AWAITING_DOCUMENT) && message.hasDocument()){
+            } else if (userState.contains(UserState.AWAITING_DOCUMENT) && message.hasDocument()){
                 logger.info("User is awaiting a document and it is present.");
                 executorService.execute(()-> documentHandler.handle(userAwaitingAction,update,manager));
-            } else if (userState.equals(UserState.AWAITING_VOICE) && message.hasVoice()){
+            } else if (userState.contains(UserState.AWAITING_VOICE) && message.hasVoice()){
                 logger.info("User is awaiting a voice and it is present.");
                 executorService.execute(()-> voiceHandler.handle(userAwaitingAction,update,manager));
-            } else if (userState.equals(UserState.AWAITING_MEDIA) && mediaQualifier.hasMedia(update) != null) {
+            } else if (userState.contains(UserState.AWAITING_MEDIA) && mediaQualifier.hasMedia(update) != null) {
                 logger.info("User is awaiting media and it is present.");
                 executorService.execute(() -> mediaHandler.handle(userAwaitingAction, update, manager));
             } else {
@@ -133,12 +132,12 @@ public class BotHandler {
 
             Long userId = callback.getFrom().getId();
 
-            UserState userState = manager.getState(userId);
-            List<String> userAwaitingAction = manager.getUserAction(userId);
+            Set<UserState> userState = manager.getStates(userId);
+            Set<String> userAwaitingAction = manager.getUserAction(userId);
 
             logger.debug("User ID: {}. Current state: {}. Awaiting actions: {}", userId, userState, userAwaitingAction);
 
-            if (userState.equals(UserState.AWAITING_CALLBACK)) {
+            if (userState.contains(UserState.AWAITING_CALLBACK)) {
                 executorService.execute(() -> callBackHandler.handle(userAwaitingAction, update, manager));
             }
         }
@@ -150,10 +149,13 @@ public class BotHandler {
             Long userId = update.getMessage().getFrom().getId();
             logger.debug("Initializing user state for user ID: {}", userId);
 
-            UserState currentState = manager.getState(userId);
+            Set<UserState> currentState = manager.getStates(userId);
             if (currentState == null) {
                 logger.info("User ID: {} has no state. Setting to AWAITING_MESSAGE with default action: /start", userId);
-                manager.setState(userId, new UserContext(UserState.AWAITING_TEXT, Collections.singletonList(manager.getDefaultStartActionName())));
+                manager.setNextStep(userId, UserContext.builder()
+                                .addState(UserState.AWAITING_TEXT)
+                                .addActionData(manager.getDefaultStartActionName())
+                        .build());
             } else {
                 logger.debug("User ID: {} already has a state: {}", userId, currentState);
             }

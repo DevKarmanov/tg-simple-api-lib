@@ -19,12 +19,12 @@ public class DefaultStateManager implements StateManager {
     private final List<RoleChangeListener> roleChangeListeners = new ArrayList<>();
 
     @Override
-    public void setState(Long userId, UserContext state) {
+    public void setNextStep(Long userId, UserContext state) {
         User user = users.get(userId);
-        UserContext oldState = null;
+        UserContext oldContext = null;
         if (user!=null){
-            oldState = user.getUserStates();
-            user.setUserStates(state);
+            oldContext = user.getUserContext();
+            user.setUserContext(state);
         }else {
             String role = "user";
             User newUser = new User(userId,state);
@@ -36,7 +36,7 @@ public class DefaultStateManager implements StateManager {
         }
         logger.debug("Set the state for user {}: {} ", userId, state);
         for (StateChangeListener listener: stateChangeListeners){
-            listener.onStateChange(userId,oldState,state);
+            listener.onStateChange(userId,oldContext,state);
         }
     }
 
@@ -101,22 +101,25 @@ public class DefaultStateManager implements StateManager {
     }
 
     @Override
-    public UserState getState(Long userId) {
+    public Set<UserState> getStates(Long userId) {
         return Optional.ofNullable(users.get(userId))
-                .map(User::getUserStates)
-                .map(UserContext::getUserState)
+                .map(User::getUserContext)
+                .map(UserContext::getUserStates)
                 .orElse(null);
     }
 
     @Override
     public void resetState(Long userId) {
-        setState(userId,new UserContext(UserState.DEFAULT, Collections.singletonList("/start")));
+        setNextStep(userId, UserContext.builder()
+                .addState(UserState.DEFAULT)
+                .addActionData("/start")
+                .build());
         addUserRole(userId,"user");
     }
 
     @Override
-    public List<String> getUserAction(Long userId) {
-        return users.get(userId).getUserStates().getActionData();
+    public Set<String> getUserAction(Long userId) {
+        return users.get(userId).getUserContext().getActionData();
     }
 
     @Override

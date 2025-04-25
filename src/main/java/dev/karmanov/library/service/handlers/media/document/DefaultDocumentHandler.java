@@ -13,8 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class DefaultDocumentHandler implements DocumentHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentHandler.class);
@@ -38,7 +38,7 @@ public class DefaultDocumentHandler implements DocumentHandler{
     }
 
     @Override
-    public void handle(List<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
         Document document = update.getMessage().getDocument();
         Long userId = update.getMessage().getFrom().getId();
         logger.info("Handling document: {}", document);

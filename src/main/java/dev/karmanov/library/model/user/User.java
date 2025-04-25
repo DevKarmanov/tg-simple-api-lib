@@ -47,11 +47,11 @@ public class User {
         this.id = id;
     }
 
-    public UserContext getUserStates() {
+    public UserContext getUserContext() {
         return userContext;
     }
 
-    public void setUserStates(UserContext userContext) {
+    public void setUserContext(UserContext userContext) {
         this.userContext = userContext;
     }
 

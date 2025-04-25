@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Comparator;
-import java.util.List;
+import java.util.Set;
 
 public class DefaultCallBackHandler implements CallBackHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCallBackHandler.class);
@@ -44,7 +44,7 @@ public class DefaultCallBackHandler implements CallBackHandler {
     }
 
     @Override
-    public void handle(List<String> userAwaitingAction, Update update, StateManager manager) {
+    public void handle(Set<String> userAwaitingAction, Update update, StateManager manager) {
         String callBackName = update.getCallbackQuery().getData();
         Long userId = update.getCallbackQuery().getFrom().getId();
         logger.info("Handling callback with name: {}", callBackName);
