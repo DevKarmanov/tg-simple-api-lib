@@ -5,8 +5,6 @@ import dev.karmanov.library.model.methodHolders.abstractHolders.FileBoundMethodH
 import java.lang.reflect.Method;
 
 public class PhotoMethodHolder extends FileBoundMethodHolder {
-    private double minFileSize;
-    private double maxFileSize;
     private int order;
     private int minWidth;
     private int minHeight;
@@ -19,22 +17,6 @@ public class PhotoMethodHolder extends FileBoundMethodHolder {
         this.minHeight = minHeight;
         this.aspectRatio = aspectRatio;
         this.format = format;
-    }
-
-    public double getMinFileSize() {
-        return minFileSize;
-    }
-
-    public void setMinFileSize(double minFileSize) {
-        this.minFileSize = minFileSize;
-    }
-
-    public double getMaxFileSize() {
-        return maxFileSize;
-    }
-
-    public void setMaxFileSize(double maxFileSize) {
-        this.maxFileSize = maxFileSize;
     }
 
     public int getOrder() {

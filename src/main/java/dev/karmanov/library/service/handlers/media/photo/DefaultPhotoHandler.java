@@ -114,6 +114,9 @@ public class DefaultPhotoHandler implements PhotoHandler {
                     }
 
                     boolean matchesSize = fileSize >= o.getMinFileSize() && fileSize <= o.getMaxFileSize();
+                    logger.debug("Size check: fileSize = {} KB, minFileSize = {} KB, maxFileSize = {} KB, matches = {}",
+                            fileSize, o.getMinFileSize(), o.getMaxFileSize(), matchesSize);
+
                     boolean matchesDimensions = fileWidth >= o.getMinWidth() && fileHeight >= o.getMinHeight();
                     boolean matchesAspectRatio = o.getAspectRatio().isEmpty() || aspectRatio.equals(o.getAspectRatio());
                     boolean matchesFormat = o.getFormat().isEmpty() || format.equals(o.getFormat());
