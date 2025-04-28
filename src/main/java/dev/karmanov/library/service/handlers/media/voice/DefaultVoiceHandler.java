@@ -14,6 +14,13 @@ import org.telegram.telegrambots.meta.api.objects.Voice;
 import java.util.Comparator;
 import java.util.Set;
 
+/**
+ * Default implementation of {@link VoiceHandler} that handles voice messages from a Telegram bot.
+ * <p>
+ * This handler checks user roles, verifies if the action is expected, and
+ * executes appropriate registered bot methods.
+ * </p>
+ */
 public class DefaultVoiceHandler implements VoiceHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultVoiceHandler.class);
     private Executor methodExecutor;
@@ -35,6 +42,11 @@ public class DefaultVoiceHandler implements VoiceHandler{
         this.methodExecutor = executor;
     }
 
+    /**
+     * Processes a received voice message update
+     * @param userAwaitingAction the set of expected user actions
+     * @param update the Telegram {@link org.telegram.telegrambots.meta.api.objects.Update} containing the voice message
+     */
     @Override
     public void handle(Set<String> userAwaitingAction, Update update) {
         Message message = update.getMessage();

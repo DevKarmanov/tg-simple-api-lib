@@ -8,6 +8,13 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
+/**
+ * Default implementation of the {@link Executor} interface for executing methods dynamically.
+ * <p>
+ * This class uses a {@link BotCommandRegister} to retrieve the appropriate bean and its method, and then
+ * invokes the method using reflection. It provides logging for both successful executions and errors.
+ * </p>
+ */
 public class DefaultMethodExecutor implements Executor {
     private BotCommandRegister register;
 
@@ -16,6 +23,18 @@ public class DefaultMethodExecutor implements Executor {
         this.register = register;
     }
     private static final Logger logger = LoggerFactory.getLogger(DefaultMethodExecutor.class);
+
+    /**
+     * Executes the specified method on the corresponding bean.
+     * <p>
+     * This method looks up the bean associated with the method using the {@link BotCommandRegister},
+     * retrieves the method via reflection, and then invokes it with the provided arguments.
+     * If the method executes successfully, a success log is generated. If an error occurs, it is logged as well.
+     * </p>
+     *
+     * @param method the {@link Method} object representing the method to be executed.
+     * @param args the arguments to be passed to the method during invocation.
+     */
     @Override
     public void executeMethod(Method method, Object... args) {
         Object bean = register.getBean(method);

@@ -20,6 +20,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Default implementation of {@link PhotoHandler} that handles photo messages from a Telegram bot.
+ * <p>
+ * This handler performs the following steps:
+ * <ul>
+ *     <li>Retrieves registered photo-handling methods from {@link BotCommandRegister}.</li>
+ *     <li>Checks user access rights using {@link RoleChecker}.</li>
+ *     <li>Verifies if the action matches the user's expected actions.</li>
+ *     <li>Validates the uploaded photo.</li>
+ *     <li>Sorts matching methods by their execution order.</li>
+ *     <li>Executes each matching method via the {@link Executor}.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * This implementation also retrieves additional file information from Telegram servers using {@link DefaultAbsSender}.
+ * </p>
+ */
 public class DefaultPhotoHandler implements PhotoHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultPhotoHandler.class);
     private Executor methodExecutor;
@@ -46,6 +63,12 @@ public class DefaultPhotoHandler implements PhotoHandler {
         this.methodExecutor = executor;
     }
 
+    /**
+     * Handles an incoming photo update
+     *
+     * @param userAwaitingAction the set of expected user actions
+     * @param update the Telegram {@link org.telegram.telegrambots.meta.api.objects.Update} containing the photo message
+     */
     @Override
     public void handle(Set<String> userAwaitingAction, Update update) {
         Message message = update.getMessage();

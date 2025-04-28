@@ -16,6 +16,13 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Default implementation of {@link TextHandler} that handles text messages or commands from a Telegram bot.
+ * <p>
+ * This handler processes text commands, verifies if the action is expected, checks if the user has the necessary
+ * roles, and executes the appropriate registered bot methods based on the provided text and user permissions.
+ * </p>
+ */
 public class DefaultTextHandler implements TextHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTextHandler.class);
 
@@ -44,6 +51,11 @@ public class DefaultTextHandler implements TextHandler {
         this.methodExecutor = executor;
     }
 
+    /**
+     * Processes the received text message or command update
+     * @param userAwaitingAction the set of expected user actions
+     * @param update the Telegram {@link org.telegram.telegrambots.meta.api.objects.Update} containing the text message
+     */
     @Override
     public void handle(Set<String> userAwaitingAction, Update update) {
         Message message = update.getMessage();

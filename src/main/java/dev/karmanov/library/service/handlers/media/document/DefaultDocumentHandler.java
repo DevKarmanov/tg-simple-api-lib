@@ -16,6 +16,16 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Default implementation of {@link DocumentHandler}.
+ * <p>
+ * Responsible for handling incoming documents in a Telegram bot.
+ * It retrieves the list of registered document-handling methods from {@link BotCommandRegister},
+ * filters them based on the user's awaiting actions, access rights, document properties,
+ * sorts them by their defined order,
+ * and then executes the matching methods via the {@link Executor}.
+ * </p>
+ */
 public class DefaultDocumentHandler implements DocumentHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentHandler.class);
     private Executor methodExecutor;
@@ -37,6 +47,11 @@ public class DefaultDocumentHandler implements DocumentHandler{
         this.methodExecutor = executor;
     }
 
+    /**
+     * Handles an incoming document update
+     * @param userAwaitingAction set of actionNames the user is currently expected to perform
+     * @param update the Telegram {@link org.telegram.telegrambots.meta.api.objects.Update} containing the document
+     */
     @Override
     public void handle(Set<String> userAwaitingAction, Update update) {
         Message message = update.getMessage();

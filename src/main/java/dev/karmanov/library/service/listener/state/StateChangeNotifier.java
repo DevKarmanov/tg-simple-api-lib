@@ -1,5 +1,11 @@
 package dev.karmanov.library.service.listener.state;
 
+/**
+ * Interface for notifying about state changes of users.
+ * <p>
+ * This interface allows adding and removing listeners that will be notified when a user's state changes.
+ * </p>
+ */
 public interface StateChangeNotifier {
     /**
      * Adds a {@link StateChangeListener} to receive notifications about state changes for users.

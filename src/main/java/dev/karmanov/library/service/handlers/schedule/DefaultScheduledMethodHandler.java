@@ -17,6 +17,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 
+/**
+ * Default implementation of {@link ScheduledHandler} that manages and schedules tasks in a Telegram bot.
+ * <p>
+ * This handler schedules tasks based on cron expressions, fixed rate, or fixed delay.
+ * It also ensures that only the users with appropriate roles will be selected for task execution.
+ * </p>
+ */
 public class DefaultScheduledMethodHandler implements ScheduledHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultScheduledMethodHandler.class);
     private BotCommandRegister register;
@@ -44,6 +51,13 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
         this.methodExecutor = executor;
     }
 
+    /**
+     * Starts the scheduling of tasks based on the defined scheduled methods.
+     * <p>
+     * This method reads the scheduled methods, sorts them by order, and schedules them to run according to the configuration
+     * (cron expression, fixed rate, or fixed delay)
+     * </p>
+     */
     @Override
     public void startSchedule() {
         register.getScheduledMethods()

@@ -15,6 +15,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.Comparator;
 import java.util.Set;
 
+/**
+ * Default implementation of {@link MediaHandler} that handles media messages from a Telegram bot.
+ * <p>
+ * This handler determines the type of media in the incoming update, checks user roles,
+ * verifies expected actions, and executes the appropriate registered bot methods based on media type
+ * and user permissions.
+ * </p>
+ */
 public class DefaultMediaMessageHandler implements MediaHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultMediaMessageHandler.class);
     private MediaQualifier mediaAvailabilityQualifier;
@@ -43,6 +51,12 @@ public class DefaultMediaMessageHandler implements MediaHandler {
     public void setMediaAvailabilityQualifier(MediaQualifier qualifier){
         this.mediaAvailabilityQualifier = qualifier;
     }
+
+    /**
+     * Processes a received media message
+     * @param userAwaitingAction the set of expected user actions
+     * @param update the Telegram {@link org.telegram.telegrambots.meta.api.objects.Update} containing the media message
+     */
     @Override
     public void handle(Set<String> userAwaitingAction, Update update) {
         MediaType type = mediaAvailabilityQualifier.hasMedia(update);

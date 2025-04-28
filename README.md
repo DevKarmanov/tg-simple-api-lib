@@ -1,5 +1,7 @@
 # tg-simple-api
 
+[![License](https://img.shields.io/github/license/DevKarmanov/tg-simple-api-lib)](LICENSE)
+
 `tg-simple-api` — это Java-библиотека с интеграцией Spring, предназначенная для быстрого и удобного создания Telegram-ботов с помощью аннотаций и встроенного менеджера состояний.
 
 ## 📦 Подключение
@@ -41,7 +43,7 @@ public class BotConfig {
 
     @Bean
     public BotHandler botHandler() {
-        return new BotHandler();
+        return new DefaultBotHandler();
     }
 }
 ```

@@ -3,39 +3,64 @@ package dev.karmanov.library.model.user;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a user in the system, with associated roles and states.
+ */
 public class User {
     private Long id;
     private final Set<String> roles = new HashSet<>();
     private UserContext userContext;
 
+    /**
+     * Constructs a new User with the given ID and context.
+     *
+     * @param id the ID of the user
+     * @param userContext the context associated with the user
+     */
     public User(Long id, UserContext userContext) {
         this.id = id;
         this.userContext = userContext;
     }
 
-    public void addRole(String role){
+    /**
+     * Adds a role to the user.
+     *
+     * @param role the role to be added
+     */
+    public void addRole(String role) {
         roles.add(role.toLowerCase(Locale.ROOT).trim());
     }
 
-    public void addRoles(String[] newRoles){
+    /**
+     * Adds multiple roles to the user.
+     *
+     * @param newRoles array of roles to be added
+     */
+    public void addRoles(String[] newRoles) {
         roles.addAll(Arrays.asList(newRoles));
     }
 
+    /**
+     * Removes specified roles from the user.
+     *
+     * @param rolesToDel array of roles to be removed
+     * @return true if roles were removed, false otherwise
+     */
     public boolean removeRoles(String[] rolesToDel) {
-
         Set<String> rolesToRemove = Arrays.stream(rolesToDel)
                 .map(role -> role.toLowerCase(Locale.ROOT).trim())
                 .collect(Collectors.toSet());
-
         return roles.removeAll(rolesToRemove);
     }
 
-
-    public void resetRoles(){
+    /**
+     * Clears all roles from the user.
+     */
+    public void resetRoles() {
         roles.clear();
     }
 
-    public Set<String> getRoles(){
+    public Set<String> getRoles() {
         return roles;
     }
 
@@ -68,3 +93,4 @@ public class User {
         return Objects.hash(id, roles, userContext);
     }
 }
+
