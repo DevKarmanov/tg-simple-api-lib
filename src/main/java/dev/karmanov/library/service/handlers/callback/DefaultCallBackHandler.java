@@ -70,9 +70,9 @@ public class DefaultCallBackHandler implements CallBackHandler {
         logger.info("Handling callback with name: {}", callBackName);
 
         register.getBotTextMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> textTypeTextQualifier.textTypeCheck(o, callBackName, TextType.CALLBACK_DATA))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .sorted(Comparator.comparingInt(TextMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for callback: {}", o.getMethod().getName(), callBackName);

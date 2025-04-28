@@ -58,9 +58,9 @@ public class DefaultVoiceHandler implements VoiceHandler{
         logger.info("Handling voice: {}", voice);
 
         register.getVoiceMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o->voiceDuration >= o.getMinDurationSeconds() && voiceDuration <= o.getMaxDurationSeconds())
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .sorted(Comparator.comparingInt(VoiceMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for voice: {}", o.getMethod().getName(), voice);

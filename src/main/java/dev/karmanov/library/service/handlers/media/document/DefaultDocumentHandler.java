@@ -63,11 +63,11 @@ public class DefaultDocumentHandler implements DocumentHandler{
         double fileSize = document.getFileSize() / 1024.0;
 
         register.getDocumentMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o->document.getFileName().matches(o.getFileNameRegex()))
                 .filter(o->fileSize >= o.getMinFileSize() && fileSize <= o.getMaxFileSize())
                 .filter(o-> Arrays.stream(o.getFileExtensions()).anyMatch(ex->ex.toLowerCase(Locale.ROOT).strip().equals(document.getFileName().substring(document.getFileName().lastIndexOf('.') + 1).toLowerCase(Locale.ROOT))))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .sorted(Comparator.comparingInt(DocumentMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for document: {}", o.getMethod().getName(), document);

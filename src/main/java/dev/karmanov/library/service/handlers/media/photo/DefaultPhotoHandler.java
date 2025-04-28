@@ -80,8 +80,8 @@ public class DefaultPhotoHandler implements PhotoHandler {
         logger.info("Handling photo with file ID: {}", largestPhoto.getFileId());
 
         register.getBotPhotoMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o -> {
                     double fileSize = largestPhoto.getFileSize() / 1024.0;
                     int fileWidth = largestPhoto.getWidth();

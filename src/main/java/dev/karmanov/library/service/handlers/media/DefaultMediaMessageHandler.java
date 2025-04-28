@@ -66,9 +66,9 @@ public class DefaultMediaMessageHandler implements MediaHandler {
         logger.info("Handling media message of type: {}", type);
 
         register.getBotMediaMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> o.getMediaType().equals(type))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .sorted(Comparator.comparingInt(MediaMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for media type: {}", o.getMethod().getName(), type);

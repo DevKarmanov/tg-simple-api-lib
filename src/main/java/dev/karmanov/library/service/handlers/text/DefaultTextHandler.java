@@ -65,9 +65,9 @@ public class DefaultTextHandler implements TextHandler {
         logger.info("Received text command: {}", text);
 
         register.getBotTextMethods().stream()
-                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .filter(o->userAwaitingAction.contains(o.getActionName()))
                 .filter(o -> textTypeTextQualifier.textTypeCheck(o, text, TextType.TEXT))
+                .filter(o->roleChecker.userHasAccess(userId,chatId,register.getSpecialAccessMethodHolders(o.getMethod())))
                 .sorted(Comparator.comparingInt(TextMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.debug("Executing method: {} for command: {}", o.getMethod().getName(), text);
