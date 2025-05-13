@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * <p>
  * This annotation can be applied to methods to define which roles are allowed to access
  * the specific handler. If the user does not have one of the specified roles, access to
- * the method will be denied.
+ * the method will be notify.
  * </p>
  * <p>
  * By default, all users are initialized with the role "user" upon their first request.

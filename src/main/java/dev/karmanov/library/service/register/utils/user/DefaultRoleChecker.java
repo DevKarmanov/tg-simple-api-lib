@@ -1,7 +1,7 @@
 package dev.karmanov.library.service.register.utils.user;
 
 import dev.karmanov.library.model.methodHolders.SpecialAccessMethodHolder;
-import dev.karmanov.library.service.handlers.denied.AccessNotifier;
+import dev.karmanov.library.service.notify.accessDenied.AccessDeniedNotifier;
 import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class DefaultRoleChecker implements RoleChecker {
     private static final Logger logger = LoggerFactory.getLogger(DefaultRoleChecker.class);
-    private AccessNotifier accessNotifier;
+    private AccessDeniedNotifier notifier;
     private StateManager manager;
 
     @Autowired(required = false)
@@ -30,8 +30,8 @@ public class DefaultRoleChecker implements RoleChecker {
     }
 
     @Autowired(required = false)
-    public void setAccessNotifier(AccessNotifier accessNotifier) {
-        this.accessNotifier = accessNotifier;
+    public void setAccessDeniedNotifier(AccessDeniedNotifier notifier) {
+        this.notifier = notifier;
     }
 
     /**
@@ -39,7 +39,7 @@ public class DefaultRoleChecker implements RoleChecker {
      * <p>
      * The method checks if the user possesses any of the roles specified in the {@link SpecialAccessMethodHolder} object.
      * If no roles are required for the method, access is granted automatically. If the user does not have the necessary roles,
-     * an access denied notification is sent.
+     * an access notify notification is sent.
      * </p>
      *
      * @param userId the ID of the user whose roles are being checked
@@ -61,8 +61,8 @@ public class DefaultRoleChecker implements RoleChecker {
 
         Set<String> userRoles = manager.getUserRoles(userId);
         if (userRoles == null || userRoles.isEmpty()) {
-            logger.warn("Access denied: user has no roles (userId={}, requiredRoles={})", userId, holder.getRoles());
-            accessNotifier.sendAccessDeniedMessage(chatId, Collections.emptySet());
+            logger.warn("Access notify: user has no roles (userId={}, requiredRoles={})", userId, holder.getRoles());
+            notifier.sendAccessDeniedMessage(chatId, Collections.emptySet());
 
             return false;
         }
@@ -72,9 +72,9 @@ public class DefaultRoleChecker implements RoleChecker {
             logger.debug("Access granted: user has required role(s) (userId={}, userRoles={}, requiredRoles={})",
                     userId, userRoles, holder.getRoles());
         } else {
-            logger.warn("Access denied: user lacks required roles (userId={}, userRoles={}, requiredRoles={})",
+            logger.warn("Access notify: user lacks required roles (userId={}, userRoles={}, requiredRoles={})",
                     userId, userRoles, holder.getRoles());
-            accessNotifier.sendAccessDeniedMessage(chatId, userRoles);
+            notifier.sendAccessDeniedMessage(chatId, userRoles);
         }
 
         return hasAccess;

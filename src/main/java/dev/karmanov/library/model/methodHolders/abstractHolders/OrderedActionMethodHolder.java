@@ -2,7 +2,7 @@ package dev.karmanov.library.model.methodHolders.abstractHolders;
 
 import java.lang.reflect.Method;
 
-public class OrderedActionMethodHolder extends ActionBaseMethodHolder {
+public abstract class OrderedActionMethodHolder extends ActionBaseMethodHolder {
     private int order;
 
     public OrderedActionMethodHolder(Method method, String actionName, int order) {

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * <p>
  * This annotation is used to define methods that handle voice messages from the user.
  * The method is triggered when the bot receives a voice message that matches the specified conditions,
- * such as the duration of the voice message.
+ * such as the duration, content (if recognized as text), and state of the user.
  * </p>
  *
  * <p><b>Example:</b></p>
@@ -34,6 +34,15 @@ import java.lang.annotation.Target;
  *      if the duration of the voice message is greater than or equal to this value. The default value is 5 seconds.</li>
  * <li>{@code order} - The execution order of the method when multiple methods are triggered.
  *      The default value is {@code Integer.MAX_VALUE}, meaning the method will execute last unless specified otherwise.</li>
+ * <li>{@code textInterpreter} - Whether to convert the voice message into text using a speech recognition model.
+ *      If {@code true}, the recognized text will be used for additional filtering via {@code regex}.
+ *      Default is {@code false}.</li>
+ * <li>{@code languageCode} - Language code used for voice-to-text recognition (e.g., "en", "ru", "pl").
+ *      This defines which language model will be applied during interpretation.
+ *      Default is {@code "en"}.</li>
+ * <li>{@code regex} - A regular expression to match against the recognized voice text.
+ *      The method will only be triggered if the text matches the given pattern.
+ *      Default is {@code ".*"}, which matches any input.</li>
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -65,5 +74,26 @@ public @interface BotVoice {
      * Default value is {@code Integer.MAX_VALUE}, meaning it executes last unless specified otherwise.
      */
     int order() default Integer.MAX_VALUE;
+
+    /**
+     * Whether to convert the voice message into text using speech recognition.
+     * Default is {@code false}.
+     */
+    boolean textInterpreter() default false;
+
+    /**
+     * Language code for the speech recognition model.
+     * Used when {@code textInterpreter} is set to {@code true}.
+     * Default is {@code "en"}.
+     */
+    String languageCode() default "en";
+
+    /**
+     * Regular expression that the recognized voice text must match.
+     * Used only if {@code textInterpreter} is enabled.
+     * Default is {@code ".*"}, which means any text is accepted.
+     */
+    String regex() default ".*";
+
 }
 

@@ -209,7 +209,10 @@ public class BotCommandRegister {
                 botVoice.actionName(),
                 botVoice.order(),
                 botVoice.maxDurationSeconds(),
-                botVoice.minDurationSeconds()
+                botVoice.minDurationSeconds(),
+                botVoice.textInterpreter(),
+                botVoice.languageCode(),
+                botVoice.regex()
         ));
     }
 }

@@ -2,8 +2,6 @@ package dev.karmanov.library.config;
 
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.callback.DefaultCallBackHandler;
-import dev.karmanov.library.service.handlers.denied.AccessNotifier;
-import dev.karmanov.library.service.handlers.denied.DefaultAccessNotifier;
 import dev.karmanov.library.service.handlers.media.DefaultMediaMessageHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DefaultDocumentHandler;
@@ -16,13 +14,29 @@ import dev.karmanov.library.service.handlers.schedule.DefaultScheduledMethodHand
 import dev.karmanov.library.service.handlers.schedule.ScheduledHandler;
 import dev.karmanov.library.service.handlers.text.DefaultTextHandler;
 import dev.karmanov.library.service.handlers.text.TextHandler;
+import dev.karmanov.library.service.notify.DefaultNotifier;
+import dev.karmanov.library.service.notify.Notifier;
+import dev.karmanov.library.service.notify.accessDenied.AccessDeniedNotifier;
+import dev.karmanov.library.service.notify.accessDenied.DefaultAccessDeniedNotifier;
+import dev.karmanov.library.service.notify.initModel.DefaultInitModelMessageNotifier;
+import dev.karmanov.library.service.notify.initModel.InitModelMessageNotifier;
+import dev.karmanov.library.service.notify.processingMessageNotifier.DefaultProcessingMessageNotifier;
+import dev.karmanov.library.service.notify.processingMessageNotifier.ProcessingMessageNotifier;
+import dev.karmanov.library.service.notify.relevantModelErrorNotifier.DefaultExceptionFoundRelevantModelNotifier;
+import dev.karmanov.library.service.notify.relevantModelErrorNotifier.ExceptionFoundRelevantModelNotifier;
+import dev.karmanov.library.service.notify.unexpectedAction.DefaultUnexpectedActionNotifier;
+import dev.karmanov.library.service.notify.unexpectedAction.UnexpectedActionNotifier;
+import dev.karmanov.library.service.notify.voiceRegexFailed.DefaultVoiceRegexFailedNotify;
+import dev.karmanov.library.service.notify.voiceRegexFailed.VoiceRegexFailedNotify;
 import dev.karmanov.library.service.register.BotCommandRegister;
-import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.executor.DefaultMethodExecutor;
+import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.media.DefaultMediaAvailabilityQualifier;
 import dev.karmanov.library.service.register.utils.media.MediaQualifier;
-import dev.karmanov.library.service.register.utils.text.TextQualifier;
+import dev.karmanov.library.service.register.utils.media.voice.AudioTranscribe;
+import dev.karmanov.library.service.register.utils.media.voice.DefaultAudioTranscribe;
 import dev.karmanov.library.service.register.utils.text.DefaultTextTypeTextQualifier;
+import dev.karmanov.library.service.register.utils.text.TextQualifier;
 import dev.karmanov.library.service.register.utils.user.DefaultRoleChecker;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import dev.karmanov.library.service.state.DefaultStateManager;
@@ -107,9 +121,45 @@ public class TgSimpleApiConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean(AccessNotifier.class)
-    public AccessNotifier accessNotifier(DefaultAbsSender sender){
-        return new DefaultAccessNotifier(sender);
+    @ConditionalOnMissingBean(AccessDeniedNotifier.class)
+    public AccessDeniedNotifier accessDeniedNotifier(){
+        return new DefaultAccessDeniedNotifier();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ProcessingMessageNotifier.class)
+    public ProcessingMessageNotifier processingMessageNotifier(){
+        return new DefaultProcessingMessageNotifier();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(UnexpectedActionNotifier.class)
+    public UnexpectedActionNotifier unexpectedActionNotifier(){
+        return new DefaultUnexpectedActionNotifier();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(VoiceRegexFailedNotify.class)
+    public VoiceRegexFailedNotify voiceRegexFailedNotify(){
+        return new DefaultVoiceRegexFailedNotify();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(Notifier.class)
+    public Notifier notifier(DefaultAbsSender sender){
+        return new DefaultNotifier(sender);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(InitModelMessageNotifier.class)
+    public InitModelMessageNotifier initModelMessageNotifier(){
+        return new DefaultInitModelMessageNotifier();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ExceptionFoundRelevantModelNotifier.class)
+    public ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier(){
+        return new DefaultExceptionFoundRelevantModelNotifier();
     }
 
     @Bean
@@ -136,6 +186,9 @@ public class TgSimpleApiConfig {
 
     @Bean
     @ConditionalOnMissingBean(VoiceHandler.class)
-    public VoiceHandler voiceHandler(){return new DefaultVoiceHandler();
-    }
+    public VoiceHandler voiceHandler(){return new DefaultVoiceHandler();}
+
+    @Bean
+    @ConditionalOnMissingBean(AudioTranscribe.class)
+    public AudioTranscribe audioTranscribe(DefaultAbsSender sender) {return new DefaultAudioTranscribe(sender);}
 }

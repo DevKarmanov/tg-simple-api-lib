@@ -3,13 +3,13 @@ package dev.karmanov.library.service.botCommand;
 import dev.karmanov.library.model.user.UserContext;
 import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
-import dev.karmanov.library.service.handlers.denied.AccessNotifier;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
 import dev.karmanov.library.service.handlers.media.voice.VoiceHandler;
 import dev.karmanov.library.service.handlers.schedule.ScheduledHandler;
 import dev.karmanov.library.service.handlers.text.TextHandler;
+import dev.karmanov.library.service.notify.unexpectedAction.UnexpectedActionNotifier;
 import dev.karmanov.library.service.register.utils.media.MediaQualifier;
 import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DefaultBotHandler implements BotHandler{
     private StateManager manager;
-    private AccessNotifier accessNotifier;
+    private UnexpectedActionNotifier notifier;
     private ExecutorService executorService;
     private MediaQualifier mediaQualifier;
     private MediaHandler mediaHandler;
@@ -45,13 +45,13 @@ public class DefaultBotHandler implements BotHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultBotHandler.class);
 
     /**
-     * Sets the AccessNotifier used to send notifications to users in case of unexpected actions.
+     * Sets the UnexpectedActionNotifier used to send notifications to users in case of unexpected actions.
      *
-     * @param accessNotifier the AccessNotifier instance.
+     * @param notifier the UnexpectedActionNotifier instance.
      */
     @Autowired(required = false)
-    public void setAccessNotifier(AccessNotifier accessNotifier) {
-        this.accessNotifier = accessNotifier;
+    public void setUnexpectedActionNotifier(UnexpectedActionNotifier notifier) {
+        this.notifier = notifier;
     }
 
     /**
@@ -199,7 +199,7 @@ public class DefaultBotHandler implements BotHandler{
                 executorService.execute(() -> mediaHandler.handle(userAwaitingAction, update));
             } else {
                 logger.warn("Unexpected message from user ID: {}. Current state: {}. Message: {}", userId, userStates, message.getText());
-                accessNotifier.sendUnexpectedActionMessage(message.getChatId(),userStates);
+                notifier.sendUnexpectedActionMessage(message.getChatId(),userStates);
             }
 
         } else if (update.hasCallbackQuery()) {
@@ -217,7 +217,7 @@ public class DefaultBotHandler implements BotHandler{
                 executorService.execute(() -> callBackHandler.handle(userAwaitingAction, update));
             }else {
                 logger.warn("Unexpected callback from user ID: {}. Current state: {}", userId, userStates);
-                accessNotifier.sendUnexpectedActionMessage(callback.getMessage().getChatId(),userStates);
+                notifier.sendUnexpectedActionMessage(callback.getMessage().getChatId(),userStates);
             }
         }
     }
