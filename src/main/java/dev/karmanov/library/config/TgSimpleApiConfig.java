@@ -1,5 +1,7 @@
 package dev.karmanov.library.config;
 
+import dev.karmanov.library.model.user.DefaultUserContext;
+import dev.karmanov.library.model.user.UserContext;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.callback.DefaultCallBackHandler;
 import dev.karmanov.library.service.handlers.media.DefaultMediaMessageHandler;

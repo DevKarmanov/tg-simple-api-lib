@@ -2,7 +2,7 @@ package dev.karmanov.library.service.state;
 
 import dev.karmanov.library.model.user.User;
 import dev.karmanov.library.model.user.UserState;
-import dev.karmanov.library.model.user.UserContext;
+import dev.karmanov.library.model.user.DefaultUserContext;
 import dev.karmanov.library.service.listener.role.RoleChangeListener;
 import dev.karmanov.library.service.listener.state.StateChangeListener;
 import org.slf4j.Logger;
@@ -28,9 +28,9 @@ public class DefaultStateManager implements StateManager {
      * @param state the new user state
      */
     @Override
-    public void setNextStep(Long userId, UserContext state) {
+    public void setNextStep(Long userId, DefaultUserContext state) {
         User user = users.get(userId);
-        UserContext oldContext = null;
+        DefaultUserContext oldContext = null;
         if (user != null) {
             oldContext = user.getUserContext();
             user.setUserContext(state);
@@ -141,7 +141,7 @@ public class DefaultStateManager implements StateManager {
     public Set<UserState> getStates(Long userId) {
         return Optional.ofNullable(users.get(userId))
                 .map(User::getUserContext)
-                .map(UserContext::getUserStates)
+                .map(DefaultUserContext::getUserStates)
                 .orElse(null);
     }
 
@@ -152,7 +152,7 @@ public class DefaultStateManager implements StateManager {
      */
     @Override
     public void resetState(Long userId) {
-        setNextStep(userId, UserContext.builder()
+        setNextStep(userId, DefaultUserContext.builder()
                 .addState(UserState.DEFAULT)
                 .addActionData("/start")
                 .build());

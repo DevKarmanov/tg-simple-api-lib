@@ -1,6 +1,6 @@
 package dev.karmanov.library.service.botCommand;
 
-import dev.karmanov.library.model.user.UserContext;
+import dev.karmanov.library.model.user.DefaultUserContext;
 import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
@@ -236,7 +236,7 @@ public class DefaultBotHandler implements BotHandler{
             Set<UserState> currentState = manager.getStates(userId);
             if (currentState == null) {
                 logger.info("User ID: {} has no state. Setting to AWAITING_MESSAGE with default action: /start", userId);
-                manager.setNextStep(userId, UserContext.builder()
+                manager.setNextStep(userId, DefaultUserContext.builder()
                                 .addState(UserState.AWAITING_TEXT)
                                 .addActionData(manager.getDefaultStartActionName())
                         .build());

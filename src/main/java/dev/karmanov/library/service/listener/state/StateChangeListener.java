@@ -1,6 +1,6 @@
 package dev.karmanov.library.service.listener.state;
 
-import dev.karmanov.library.model.user.UserContext;
+import dev.karmanov.library.model.user.DefaultUserContext;
 
 /**
  * Interface for listening to state changes of users.
@@ -19,5 +19,5 @@ public interface StateChangeListener {
      * @param oldState the previous state of the user.
      * @param newState the new state of the user.
      */
-    void onStateChange(Long userId, UserContext oldState, UserContext newState);
+    void onStateChange(Long userId, DefaultUserContext oldState, DefaultUserContext newState);
 }
