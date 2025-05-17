@@ -124,10 +124,8 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
                 }
             }
             Method method = scheduledMethod.getMethod();
-            Object bean = register.getBean(method);
-            Method proxy = ReflectionUtils.findMethod(bean.getClass(), method.getName(), method.getParameterTypes());
 
-            methodExecutor.executeMethod(proxy, selectedUserIds);
+            methodExecutor.executeMethod(method, selectedUserIds);
         };
 
         return task;

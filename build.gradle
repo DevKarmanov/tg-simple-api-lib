@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.karmanov'
-version = '1.13-SNAPSHOT'
+version = '1.16-SNAPSHOT'
 
 repositories {
     mavenCentral()

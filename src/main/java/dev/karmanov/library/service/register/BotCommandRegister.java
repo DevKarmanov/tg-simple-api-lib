@@ -28,7 +28,7 @@ public class BotCommandRegister {
     private final List<ScheduledMethodHolder> scheduledMethods = new ArrayList<>();
     private final List<DocumentMethodHolder> documentMethods = new ArrayList<>();
     private final List<VoiceMethodHolder> voiceMethods = new ArrayList<>();
-    private final Map<String, String> beanNames = new HashMap<>();
+    private final Map<Method, String> beanNames = new HashMap<>();
     private ApplicationContext context;
     private final Map<Class<? extends Annotation>, Consumer<Method>> handlerMap = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(BotCommandRegister.class);
@@ -92,7 +92,8 @@ public class BotCommandRegister {
                 if (!containsRelevantAnnotation(method)) continue;
                 for (Map.Entry<Class<? extends Annotation>, Consumer<Method>> entry:handlerMap.entrySet()){
                     if (method.isAnnotationPresent(entry.getKey())){
-                        beanNames.put(method.toGenericString(), beanName);
+                        beanNames.put(method, beanName);
+                        logger.debug("methodName: {}",method);
                         entry.getValue().accept(method);
                         logger.info("Detected method: {} with annotations: {}", method.getName(), Arrays.toString(method.getDeclaredAnnotations()));
                     }
@@ -112,9 +113,10 @@ public class BotCommandRegister {
 
 
     public Object getBean(Method method){
-        String beanName = beanNames.get(method.toGenericString());
+        logger.debug("methodName: {}",method);
+        String beanName = beanNames.get(method);
         if (beanName == null) {
-            logger.error("No bean found for method: {}", method.getName());
+            logger.error("No bean found for method: {}", method);
             throw new RuntimeException("No bean found for method: " + method.getName());
         }
         return context.getBean(beanName);
