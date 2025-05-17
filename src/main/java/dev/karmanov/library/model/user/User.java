@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class User {
     private Long id;
     private final Set<String> roles = new HashSet<>();
-    private DefaultUserContext userContext;
+    private UserContext userContext;
 
     /**
      * Constructs a new User with the given ID and context.
@@ -17,7 +17,7 @@ public class User {
      * @param id the ID of the user
      * @param userContext the context associated with the user
      */
-    public User(Long id, DefaultUserContext userContext) {
+    public User(Long id, UserContext userContext) {
         this.id = id;
         this.userContext = userContext;
     }
@@ -72,11 +72,11 @@ public class User {
         this.id = id;
     }
 
-    public DefaultUserContext getUserContext() {
+    public UserContext getUserContext() {
         return userContext;
     }
 
-    public void setUserContext(DefaultUserContext userContext) {
+    public void setUserContext(UserContext userContext) {
         this.userContext = userContext;
     }
 

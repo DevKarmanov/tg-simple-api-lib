@@ -1,5 +1,6 @@
 package dev.karmanov.library.service.state;
 
+import dev.karmanov.library.model.user.UserContext;
 import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.model.user.DefaultUserContext;
 import dev.karmanov.library.service.listener.role.RoleChangeNotifier;
@@ -23,7 +24,7 @@ public interface StateManager extends StateChangeNotifier, RoleChangeNotifier {
      * @param userId the ID of the user
      * @param state the new user state
      */
-    void setNextStep(Long userId, DefaultUserContext state);
+    void setNextStep(Long userId, UserContext state);
 
     /**
      * Adds roles to the specified user.
