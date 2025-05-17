@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Default implementation of {@link ScheduledHandler} that manages and schedules tasks in a Telegram bot.
@@ -27,6 +28,7 @@ import java.util.*;
 public class DefaultScheduledMethodHandler implements ScheduledHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultScheduledMethodHandler.class);
     private BotCommandRegister register;
+    private ExecutorService executorService;
     private Executor methodExecutor;
     private TaskScheduler scheduler;
     private StateManager manager;
@@ -34,6 +36,11 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
     @Autowired(required = false)
     public void setManager(StateManager manager){
         this.manager = manager;
+    }
+
+    @Autowired(required = false)
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     @Autowired(required = false)
@@ -64,6 +71,14 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
                 .stream()
                 .sorted(Comparator.comparingInt(ScheduledMethodHolder::getOrder))
                 .forEach(this::schedule);
+
+        register.getScheduledMethods()
+                .stream()
+                .filter(ScheduledMethodHolder::isRunOnStartup)
+                .forEach(scheduledMethod -> {
+                    Runnable task = getTask(scheduledMethod);
+                    executorService.execute(task);
+                });
         logger.info("Scheduled tasks started after first message");
     }
 
@@ -115,9 +130,6 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
             methodExecutor.executeMethod(proxy, selectedUserIds);
         };
 
-        if (scheduledMethod.isRunOnStartup()){
-            task.run();
-        }
         return task;
     }
 }
