@@ -9,13 +9,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -113,21 +114,36 @@ public class DefaultScheduledMethodHandler implements ScheduledHandler{
     }
 
     private Runnable getTask(ScheduledMethodHolder scheduledMethod) {
-        Runnable task = () -> {
+        return () -> {
             Set<Long> userIds = manager.getAllUserIds();
             Set<Long> selectedUserIds = new HashSet<>();
 
+            Set<String> methodRoles = scheduledMethod.getRoles();
+            String methodName = scheduledMethod.getMethod().getName();
+
+            logger.info("⏰ Scheduled method '{}' triggered at {}", methodName, Instant.now());
+            logger.info("📋 Found userIds: {}", userIds);
+            logger.info("🔐 Required roles: {}", methodRoles);
+
             for (Long userId : userIds) {
-                Set<String> methodRoles = scheduledMethod.getRoles();
-                if (methodRoles.isEmpty() || manager.getUserRoles(userId).stream().anyMatch(methodRoles::contains)) {
-                   selectedUserIds.add(userId);
+                Set<String> userRoles = manager.getUserRoles(userId);
+                if (methodRoles.isEmpty() || userRoles.stream().anyMatch(methodRoles::contains)) {
+                    selectedUserIds.add(userId);
+                    logger.info("✅ User {} matches roles {} -> selected", userId, userRoles);
+                } else {
+                    logger.info("❌ User {} roles {} do not match required {}", userId, userRoles, methodRoles);
                 }
             }
-            Method method = scheduledMethod.getMethod();
 
-            methodExecutor.executeMethod(method, selectedUserIds);
+            logger.info("📨 Final selectedUserIds for method '{}': {}", methodName, selectedUserIds);
+
+            try {
+                Method method = scheduledMethod.getMethod();
+                methodExecutor.executeMethod(method, selectedUserIds);
+            } catch (Exception e) {
+                logger.error("💥 Error while executing scheduled method '{}': {}", methodName, e.getMessage(), e);
+            }
         };
-
-        return task;
     }
+
 }
