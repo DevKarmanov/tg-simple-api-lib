@@ -55,6 +55,8 @@ public enum UserState {
      */
     AWAITING_DOCUMENT,
 
+    AWAITING_LOCATION
+
 }
 
 

@@ -98,7 +98,7 @@ public class DefaultVoiceHandler implements VoiceHandler{
                             String regex = o.getRegex();
 
                             if (resultText.matches(regex)){
-                                methodExecutor.executeMethod(o.getMethod(), update, resultText);
+                                methodExecutor.executeMethod(o.getMethod(),chatId,update,resultText);
                             }else {
                                 voiceRegexFailedNotify.sendRegexFailedMessage(chatId,resultText,regex);
                             }
@@ -107,7 +107,7 @@ public class DefaultVoiceHandler implements VoiceHandler{
                         }
 
                     }else{
-                        methodExecutor.executeMethod(o.getMethod(), update);
+                        methodExecutor.executeMethod(o.getMethod(),chatId,update);
                     }
                 });
     }

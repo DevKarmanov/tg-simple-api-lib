@@ -71,7 +71,7 @@ public class DefaultTextHandler implements TextHandler {
                 .sorted(Comparator.comparingInt(TextMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.debug("Executing method: {} for command: {}", o.getMethod().getName(), text);
-                    methodExecutor.executeMethod(o.getMethod(), update);
+                    methodExecutor.executeMethod(o.getMethod(),chatId,update);
                 });
 
         logger.info("Finished processing text command: {}", text);

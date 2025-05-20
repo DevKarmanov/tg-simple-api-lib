@@ -76,7 +76,7 @@ public class DefaultCallBackHandler implements CallBackHandler {
                 .sorted(Comparator.comparingInt(TextMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for callback: {}", o.getMethod().getName(), callBackName);
-                    methodExecutor.executeMethod(o.getMethod(), update);
+                    methodExecutor.executeMethod(o.getMethod(),chatId,update);
                 });
     }
 }

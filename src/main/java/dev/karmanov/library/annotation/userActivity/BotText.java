@@ -1,7 +1,5 @@
 package dev.karmanov.library.annotation.userActivity;
 
-import dev.karmanov.library.service.state.StateManager;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

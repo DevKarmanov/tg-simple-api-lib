@@ -1,9 +1,9 @@
 package dev.karmanov.library.config;
 
-import dev.karmanov.library.model.user.DefaultUserContext;
-import dev.karmanov.library.model.user.UserContext;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.callback.DefaultCallBackHandler;
+import dev.karmanov.library.service.handlers.location.DefaultLocationHandler;
+import dev.karmanov.library.service.handlers.location.LocationHandler;
 import dev.karmanov.library.service.handlers.media.DefaultMediaMessageHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DefaultDocumentHandler;
@@ -26,6 +26,8 @@ import dev.karmanov.library.service.notify.processingMessageNotifier.DefaultProc
 import dev.karmanov.library.service.notify.processingMessageNotifier.ProcessingMessageNotifier;
 import dev.karmanov.library.service.notify.relevantModelErrorNotifier.DefaultExceptionFoundRelevantModelNotifier;
 import dev.karmanov.library.service.notify.relevantModelErrorNotifier.ExceptionFoundRelevantModelNotifier;
+import dev.karmanov.library.service.notify.unexcpectedExceptionMessageNotifier.DefaultUnexpectedExceptionMessageNotifier;
+import dev.karmanov.library.service.notify.unexcpectedExceptionMessageNotifier.UnexpectedExceptionNotifier;
 import dev.karmanov.library.service.notify.unexpectedAction.DefaultUnexpectedActionNotifier;
 import dev.karmanov.library.service.notify.unexpectedAction.UnexpectedActionNotifier;
 import dev.karmanov.library.service.notify.voiceRegexFailed.DefaultVoiceRegexFailedNotify;
@@ -141,6 +143,10 @@ public class TgSimpleApiConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean(UnexpectedExceptionNotifier.class)
+    public UnexpectedExceptionNotifier unexpectedExceptionNotifier(){return new DefaultUnexpectedExceptionMessageNotifier();}
+
+    @Bean
     @ConditionalOnMissingBean(VoiceRegexFailedNotify.class)
     public VoiceRegexFailedNotify voiceRegexFailedNotify(){
         return new DefaultVoiceRegexFailedNotify();
@@ -163,6 +169,10 @@ public class TgSimpleApiConfig {
     public ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier(){
         return new DefaultExceptionFoundRelevantModelNotifier();
     }
+
+    @Bean
+    @ConditionalOnMissingBean(LocationHandler.class)
+    public LocationHandler locationHandler(){return new DefaultLocationHandler();}
 
     @Bean
     @ConditionalOnMissingBean(TextHandler.class)

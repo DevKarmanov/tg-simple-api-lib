@@ -72,7 +72,7 @@ public class DefaultMediaMessageHandler implements MediaHandler {
                 .sorted(Comparator.comparingInt(MediaMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for media type: {}", o.getMethod().getName(), type);
-                    methodExecutor.executeMethod(o.getMethod(), update);
+                    methodExecutor.executeMethod(o.getMethod(),chatId,update);
                 });
     }
 }

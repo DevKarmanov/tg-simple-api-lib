@@ -3,7 +3,10 @@ package dev.karmanov.library.service.register;
 import dev.karmanov.library.annotation.botActivity.RoleBasedAccess;
 import dev.karmanov.library.annotation.userActivity.*;
 import dev.karmanov.library.model.message.TextType;
-import dev.karmanov.library.model.methodHolders.*;
+import dev.karmanov.library.model.methodHolders.LocationMethodHolder;
+import dev.karmanov.library.model.methodHolders.ScheduledMethodHolder;
+import dev.karmanov.library.model.methodHolders.SpecialAccessMethodHolder;
+import dev.karmanov.library.model.methodHolders.TextMethodHolder;
 import dev.karmanov.library.model.methodHolders.media.DocumentMethodHolder;
 import dev.karmanov.library.model.methodHolders.media.MediaMethodHolder;
 import dev.karmanov.library.model.methodHolders.media.PhotoMethodHolder;
@@ -27,6 +30,7 @@ public class BotCommandRegister {
     private final List<PhotoMethodHolder> botPhotoMethods = new ArrayList<>();
     private final List<ScheduledMethodHolder> scheduledMethods = new ArrayList<>();
     private final List<DocumentMethodHolder> documentMethods = new ArrayList<>();
+    private final List<LocationMethodHolder> locationMethods = new ArrayList<>();
     private final List<VoiceMethodHolder> voiceMethods = new ArrayList<>();
     private final Map<Method, String> beanNames = new HashMap<>();
     private ApplicationContext context;
@@ -42,6 +46,7 @@ public class BotCommandRegister {
         handlerMap.put(RoleBasedAccess.class, this::processSpecialAccessMethod);
         handlerMap.put(BotDocument.class, this::processDocument);
         handlerMap.put(BotVoice.class, this::processVoice);
+        handlerMap.put(BotLocation.class, this::processLocation);
     }
 
     @Autowired
@@ -63,6 +68,10 @@ public class BotCommandRegister {
 
     public List<ScheduledMethodHolder> getScheduledMethods() {
         return scheduledMethods;
+    }
+
+    public List<LocationMethodHolder> getLocationMethods() {
+        return locationMethods;
     }
 
     public SpecialAccessMethodHolder getSpecialAccessMethodHolders(Method method) {
@@ -215,6 +224,22 @@ public class BotCommandRegister {
                 botVoice.textInterpreter(),
                 botVoice.languageCode(),
                 botVoice.regex()
+        ));
+    }
+
+    private void processLocation(Method method) {
+        BotLocation botLocation = method.getAnnotation(BotLocation.class);
+        locationMethods.add(new LocationMethodHolder(
+                method,
+                botLocation.actionName(),
+                botLocation.order(),
+                botLocation.withinRadiusMeters(),
+                botLocation.centerLat(),
+                botLocation.centerLon(),
+                botLocation.requireAccurateLocation(),
+                botLocation.minAccuracyMeters(),
+                botLocation.maxAgeSeconds(),
+                botLocation.requireExplicitLocation()
         ));
     }
 }

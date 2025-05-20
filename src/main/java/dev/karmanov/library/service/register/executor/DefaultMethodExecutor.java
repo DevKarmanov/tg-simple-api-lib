@@ -1,11 +1,13 @@
 package dev.karmanov.library.service.register.executor;
 
+import dev.karmanov.library.service.notify.unexcpectedExceptionMessageNotifier.UnexpectedExceptionNotifier;
 import dev.karmanov.library.service.register.BotCommandRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -16,12 +18,19 @@ import java.lang.reflect.Method;
  * </p>
  */
 public class DefaultMethodExecutor implements Executor {
+    private UnexpectedExceptionNotifier notifier;
     private BotCommandRegister register;
 
     @Autowired(required = false)
     public void setRegister(BotCommandRegister register){
         this.register = register;
     }
+
+    @Autowired(required = false)
+    public void setNotifier(UnexpectedExceptionNotifier notifier) {
+        this.notifier = notifier;
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(DefaultMethodExecutor.class);
 
     /**
@@ -36,17 +45,31 @@ public class DefaultMethodExecutor implements Executor {
      * @param args the arguments to be passed to the method during invocation.
      */
     @Override
+    public void executeMethod(Method method, Long chatId, Object... args) {
+        try {
+            execute(method,args);
+        } catch (Exception e) {
+            logger.error("Error executing method: {}, for chatId: {}", method, chatId, e);
+            notifier.sendUnexpectedExceptionMessage(chatId,e);
+        }
+    }
+
+    @Override
     public void executeMethod(Method method, Object... args) {
+        try {
+            execute(method,args);
+        } catch (Exception e) {
+            logger.error("Error executing method: {}.", method, e);
+        }
+    }
+
+    private void execute(Method method, Object... args) throws InvocationTargetException, IllegalAccessException {
         Object bean = register.getBean(method);
         Method proxyMethod = ReflectionUtils.findMethod(bean.getClass(), method.getName(), method.getParameterTypes());
 
         logger.info("Executing method: {} in class: {}", proxyMethod.getName(), bean.getClass().getSimpleName());
 
-        try {
-            proxyMethod.invoke(bean, args);
-            logger.info("Successfully executed method: {}", proxyMethod.getName());
-        } catch (Exception e) {
-            logger.error("Error executing method: {}. Exception: {}", proxyMethod.getName(), e.getMessage(), e);
-        }
+        proxyMethod.invoke(bean, args);
+        logger.info("Successfully executed method: {}", proxyMethod.getName());
     }
 }
