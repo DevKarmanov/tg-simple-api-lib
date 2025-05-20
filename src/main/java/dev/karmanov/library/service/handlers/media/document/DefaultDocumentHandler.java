@@ -71,7 +71,7 @@ public class DefaultDocumentHandler implements DocumentHandler{
                 .sorted(Comparator.comparingInt(DocumentMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for document: {}", o.getMethod().getName(), document);
-                    methodExecutor.executeMethod(o.getMethod(), update);
+                    methodExecutor.executeMethod(o.getMethod(),chatId,update);
                 });
     }
 }

@@ -19,5 +19,6 @@ public interface Executor {
      * @param method the {@link Method} object representing the method to be executed.
      * @param args the arguments to be passed to the method during invocation.
      */
+    void executeMethod(Method method, Long chatId, Object... args);
     void executeMethod(Method method, Object... args);
 }

@@ -3,6 +3,7 @@ package dev.karmanov.library.service.botCommand;
 import dev.karmanov.library.model.user.DefaultUserContext;
 import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
+import dev.karmanov.library.service.handlers.location.LocationHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
@@ -40,9 +41,15 @@ public class DefaultBotHandler implements BotHandler{
     private CallBackHandler callBackHandler;
     private DocumentHandler documentHandler;
     private VoiceHandler voiceHandler;
+    private LocationHandler locationHandler;
     private ScheduledHandler scheduledHandler;
     private final AtomicBoolean isScheduled = new AtomicBoolean(false);
     private static final Logger logger = LoggerFactory.getLogger(DefaultBotHandler.class);
+
+    @Autowired(required = false)
+    public void setLocationHandler(LocationHandler locationHandler) {
+        this.locationHandler = locationHandler;
+    }
 
     /**
      * Sets the UnexpectedActionNotifier used to send notifications to users in case of unexpected actions.
@@ -50,7 +57,7 @@ public class DefaultBotHandler implements BotHandler{
      * @param notifier the UnexpectedActionNotifier instance.
      */
     @Autowired(required = false)
-    public void setUnexpectedActionNotifier(UnexpectedActionNotifier notifier) {
+    public void setNotifier(UnexpectedActionNotifier notifier) {
         this.notifier = notifier;
     }
 
@@ -197,6 +204,9 @@ public class DefaultBotHandler implements BotHandler{
             } else if (userStates.contains(UserState.AWAITING_MEDIA) && mediaQualifier.hasMedia(update) != null) {
                 logger.info("User is awaiting media and it is present.");
                 executorService.execute(() -> mediaHandler.handle(userAwaitingAction, update));
+            } else if (userStates.contains(UserState.AWAITING_LOCATION) && message.hasLocation()){
+                logger.info("User is awaiting location and it is present.");
+                executorService.execute(()->locationHandler.handle(userAwaitingAction,update));
             } else {
                 logger.warn("Unexpected message from user ID: {}. Current state: {}. Message: {}", userId, userStates, message.getText());
                 notifier.sendUnexpectedActionMessage(message.getChatId(),userStates);

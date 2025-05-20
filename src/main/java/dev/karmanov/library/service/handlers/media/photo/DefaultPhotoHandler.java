@@ -129,7 +129,7 @@ public class DefaultPhotoHandler implements PhotoHandler {
                 .sorted(Comparator.comparingInt(PhotoMethodHolder::getOrder))
                 .forEach(o -> {
                     logger.info("Executing method: {} for photo ID: {}", o.getMethod().getName(), largestPhoto.getFileId());
-                    methodExecutor.executeMethod(o.getMethod(), update);
+                    methodExecutor.executeMethod(o.getMethod(),chatId,update);
                 });
     }
 
