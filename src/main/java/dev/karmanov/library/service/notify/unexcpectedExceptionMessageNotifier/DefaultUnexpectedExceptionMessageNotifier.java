@@ -4,7 +4,10 @@ import dev.karmanov.library.service.notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
+/**
+ * Default implementation of {@link UnexpectedExceptionNotifier}.
+ * Logs the exception and optionally notifies the user via {@link Notifier}.
+ */
 public class DefaultUnexpectedExceptionMessageNotifier implements UnexpectedExceptionNotifier{
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnexpectedExceptionMessageNotifier.class);
     private Notifier notifier;
