@@ -13,7 +13,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Comparator;
 import java.util.Set;
-
+/**
+ * Default implementation of {@link LocationHandler} for processing user location messages.
+ * <p>
+ * Applies various filters such as accuracy, freshness, radius, and explicitness,
+ * and executes matching location-handling methods.
+ */
 public class DefaultLocationHandler implements LocationHandler{
     private static final int EARTH_RADIUS_METERS = 6_371_000;
     private static final Logger logger = LoggerFactory.getLogger(DefaultLocationHandler.class);

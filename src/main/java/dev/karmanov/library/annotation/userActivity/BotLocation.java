@@ -10,59 +10,57 @@ import java.lang.annotation.Target;
 public @interface BotLocation {
 
     /**
-     * Уникальное имя действия, с которым связан данный метод.
-     * Используется для внутренней маршрутизации.
+     * Unique action name associated with this method.
+     * Used for internal routing.
      */
     String actionName();
 
     /**
-     * Радиус в метрах, в пределах которого геометка считается допустимой.
-     * Применяется только при заданных centerLat и centerLon.
-     * Значение <= 0 отключает проверку радиуса.
+     * Radius in meters within which the location is considered valid.
+     * Applied only if centerLat and centerLon are specified.
+     * A value <= 0 disables radius check.
      */
     double withinRadiusMeters() default -1;
 
     /**
-     * Широта центра области проверки (используется с withinRadiusMeters).
+     * Latitude of the center point for radius check (used with withinRadiusMeters).
      */
     double centerLat() default Double.NaN;
 
     /**
-     * Долгота центра области проверки (используется с withinRadiusMeters).
+     * Longitude of the center point for radius check (used with withinRadiusMeters).
      */
     double centerLon() default Double.NaN;
 
     /**
-     * Если true — геометка должна быть точной (is_accurate = true).
-     * Игнорируются примерные координаты.
+     * If true, the location must be accurate (is_accurate = true).
+     * Approximate coordinates will be ignored.
      */
     boolean requireAccurateLocation() default false;
 
     /**
-     * Минимально допустимая точность геометки (horizontal_accuracy) в метрах.
-     * Геометки с меньшей точностью будут проигнорированы.
-     * Значение <= 0 отключает проверку.
+     * Minimum acceptable horizontal accuracy (in meters).
+     * Locations with lower accuracy will be ignored.
+     * A value <= 0 disables this check.
      */
     double minAccuracyMeters() default -1;
 
     /**
-     * Максимально допустимое "время жизни" геометки в секундах.
-     * Геометки, отправленные слишком давно, игнорируются.
-     * Значение <= 0 отключает проверку.
+     * Maximum allowed age of the location in seconds.
+     * Older locations will be ignored.
+     * A value <= 0 disables this check.
      */
     long maxAgeSeconds() default -1;
 
     /**
-     * Если true — геометка должна быть явно отправлена пользователем.
-     * Пересланные сообщения и ответы (reply) не будут обрабатываться.
+     * If true, the location must be explicitly sent by the user.
+     * Forwarded messages and replies will be ignored.
      */
     boolean requireExplicitLocation() default true;
 
-
     /**
-     * Приоритет вызова обработчика, если несколько подходят.
-     * Меньшее значение означает более высокий приоритет.
+     * Handler execution priority if multiple handlers match.
+     * Lower values indicate higher priority.
      */
     int order() default Integer.MAX_VALUE;
 }
-
