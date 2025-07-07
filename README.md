@@ -23,6 +23,15 @@
 
 [![](https://jitpack.io/v/DevKarmanov/tg-simple-api-lib.svg)](https://jitpack.io/#DevKarmanov/tg-simple-api-lib)
 
+Если вы не хотите тянуть тяжелые зависимости для ИИ в проект, то исключите следующие библиотеки:
+```Kotlin DSL
+implementation('com.github.DevKarmanov:tg-simple-api-lib:v1.1.2') {
+    exclude group: 'org.bytedeco', module: 'javacv-platform'
+    exclude group: 'org.bytedeco', module: 'ffmpeg-platform'
+    exclude group: 'com.alphacephei', module: 'vosk'
+}
+```
+
 ## 🚀 Быстрый старт
 
 1. Создайте бин для `BotHandler` и вашего бота:
