@@ -17,14 +17,17 @@ import org.springframework.stereotype.Component;
 public class BotRegisterInitializer implements SmartInitializingSingleton {
 
     private final BotCommandRegister register;
+    private final WebHookInitializer webHookInitializer;
 
-    public BotRegisterInitializer(BotCommandRegister register) {
+    public BotRegisterInitializer(BotCommandRegister register, WebHookInitializer webHookInitializer) {
         this.register = register;
+        this.webHookInitializer = webHookInitializer;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
         register.scan();
+        webHookInitializer.registerWebhook();
     }
 }
 

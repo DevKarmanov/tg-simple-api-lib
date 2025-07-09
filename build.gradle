@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.karmanov'
-version = '1.18-SNAPSHOT'
+version = '1.28-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -22,7 +22,7 @@ dependencies {
     api 'org.telegram:telegrambots:6.9.7.1'
     implementation 'org.bytedeco:javacv-platform:1.5.9'
     implementation 'org.bytedeco:ffmpeg-platform:6.0-1.5.9'
-
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.4.4'
     implementation 'com.alphacephei:vosk:0.3.45'
 
     api 'org.springframework.boot:spring-boot-starter-test:3.4.4'

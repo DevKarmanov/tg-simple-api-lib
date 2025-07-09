@@ -1,5 +1,6 @@
 package dev.karmanov.library.config;
 
+import dev.karmanov.library.config.botProperties.WebHookBotProperties;
 import dev.karmanov.library.service.handlers.callback.CallBackHandler;
 import dev.karmanov.library.service.handlers.callback.DefaultCallBackHandler;
 import dev.karmanov.library.service.handlers.location.DefaultLocationHandler;
@@ -46,6 +47,7 @@ import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import dev.karmanov.library.service.state.DefaultStateManager;
 import dev.karmanov.library.service.state.StateManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -58,6 +60,7 @@ import java.util.concurrent.Executors;
 
 @Configuration
 @ComponentScan(basePackages = "dev.karmanov.library")
+@EnableConfigurationProperties(WebHookBotProperties.class)
 public class TgSimpleApiConfig {
 
     @Bean
