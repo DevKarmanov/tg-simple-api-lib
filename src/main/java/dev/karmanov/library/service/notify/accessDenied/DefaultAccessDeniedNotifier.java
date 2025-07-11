@@ -3,19 +3,17 @@ package dev.karmanov.library.service.notify.accessDenied;
 import dev.karmanov.library.service.notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 
 public class DefaultAccessDeniedNotifier implements AccessDeniedNotifier{
-    private Notifier notifier;
-
-    @Autowired(required = false)
-    public void setNotifier(Notifier notifier) {
-        this.notifier = notifier;
-    }
+    private final Notifier notifier;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultAccessDeniedNotifier.class);
+
+    public DefaultAccessDeniedNotifier(Notifier notifier) {
+        this.notifier = notifier;
+    }
 
     @Override
     public void sendAccessDeniedMessage(Long chatId, Set<String> currentUserRoles) {

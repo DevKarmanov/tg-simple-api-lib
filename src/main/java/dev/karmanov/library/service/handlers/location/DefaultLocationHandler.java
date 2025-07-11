@@ -6,7 +6,6 @@ import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -22,24 +21,16 @@ import java.util.Set;
 public class DefaultLocationHandler implements LocationHandler{
     private static final int EARTH_RADIUS_METERS = 6_371_000;
     private static final Logger logger = LoggerFactory.getLogger(DefaultLocationHandler.class);
-    private Executor methodExecutor;
-    private BotCommandRegister register;
-    private RoleChecker roleChecker;
+    private final Executor methodExecutor;
+    private final BotCommandRegister register;
+    private final RoleChecker roleChecker;
 
-    @Autowired(required = false)
-    public void setRoleChecker(RoleChecker roleChecker) {
+    public DefaultLocationHandler(Executor methodExecutor, BotCommandRegister register, RoleChecker roleChecker) {
+        this.methodExecutor = methodExecutor;
+        this.register = register;
         this.roleChecker = roleChecker;
     }
 
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor methodExecutor) {
-        this.methodExecutor = methodExecutor;
-    }
-
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register) {
-        this.register = register;
-    }
 
     @Override
     public void handle(Set<String> userAwaitingAction, Update update) {

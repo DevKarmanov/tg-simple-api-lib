@@ -6,7 +6,6 @@ import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 
@@ -28,36 +27,20 @@ import java.util.concurrent.ExecutorService;
  */
 public class DefaultScheduledMethodHandler implements ScheduledHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultScheduledMethodHandler.class);
-    private BotCommandRegister register;
-    private ExecutorService executorService;
-    private Executor methodExecutor;
-    private TaskScheduler scheduler;
-    private StateManager manager;
+    private final BotCommandRegister register;
+    private final ExecutorService executorService;
+    private final Executor methodExecutor;
+    private final TaskScheduler scheduler;
+    private final StateManager manager;
 
-    @Autowired(required = false)
-    public void setManager(StateManager manager){
+    public DefaultScheduledMethodHandler(BotCommandRegister register, ExecutorService executorService, Executor methodExecutor, TaskScheduler scheduler, StateManager manager) {
+        this.register = register;
+        this.executorService = executorService;
+        this.methodExecutor = methodExecutor;
+        this.scheduler = scheduler;
         this.manager = manager;
     }
 
-    @Autowired(required = false)
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
-    }
-
-    @Autowired(required = false)
-    public void setScheduler(TaskScheduler scheduler) {
-        this.scheduler = scheduler;
-    }
-
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
-        this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor executor){
-        this.methodExecutor = executor;
-    }
 
     /**
      * Starts the scheduling of tasks based on the defined scheduled methods.

@@ -6,7 +6,6 @@ import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -28,24 +27,16 @@ import java.util.Set;
  */
 public class DefaultDocumentHandler implements DocumentHandler{
     private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentHandler.class);
-    private Executor methodExecutor;
-    private BotCommandRegister register;
-    private RoleChecker roleChecker;
+    private final Executor methodExecutor;
+    private final BotCommandRegister register;
+    private final RoleChecker roleChecker;
 
-    @Autowired(required = false)
-    public void setRoleChecker(RoleChecker roleChecker) {
+    public DefaultDocumentHandler(Executor methodExecutor, BotCommandRegister register, RoleChecker roleChecker) {
+        this.methodExecutor = methodExecutor;
+        this.register = register;
         this.roleChecker = roleChecker;
     }
 
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
-        this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor executor){
-        this.methodExecutor = executor;
-    }
 
     /**
      * Handles an incoming document update

@@ -4,7 +4,6 @@ import dev.karmanov.library.service.notify.unexcpectedExceptionMessageNotifier.U
 import dev.karmanov.library.service.register.BotCommandRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,20 +17,15 @@ import java.lang.reflect.Method;
  * </p>
  */
 public class DefaultMethodExecutor implements Executor {
-    private UnexpectedExceptionNotifier notifier;
-    private BotCommandRegister register;
-
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
-        this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setNotifier(UnexpectedExceptionNotifier notifier) {
-        this.notifier = notifier;
-    }
+    private final UnexpectedExceptionNotifier notifier;
+    private final BotCommandRegister register;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultMethodExecutor.class);
+
+    public DefaultMethodExecutor(UnexpectedExceptionNotifier notifier, BotCommandRegister register) {
+        this.notifier = notifier;
+        this.register = register;
+    }
 
     /**
      * Executes the specified method on the corresponding bean.

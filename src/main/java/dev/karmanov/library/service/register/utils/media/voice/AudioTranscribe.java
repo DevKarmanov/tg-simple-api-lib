@@ -1,5 +1,6 @@
 package dev.karmanov.library.service.register.utils.media.voice;
 
+import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.Voice;
 
 /**
@@ -19,5 +20,6 @@ public interface AudioTranscribe {
      * @return The transcribed text from the voice message.
      */
     String voiceToText(Voice voice, String languageCode, Long chatId);
+    String voiceToText(Video video, String languageCode, Long chatId);
 }
 

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.objects.File;
+import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.Voice;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.vosk.Model;
@@ -24,7 +25,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
-import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,23 +41,13 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAudioTranscribe.class);
     private InitModelMessageNotifier notifier;
     private ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier;
-    private final DefaultAbsSender sender;
+    private DefaultAbsSender sender;
     private final Map<String, String> languageModels = new HashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Map<String, SoftReference<Model>> modelCache = new ConcurrentHashMap<>();
+    private final Map<String, Model> modelCache = new ConcurrentHashMap<>();
+
     private String token;
-
     private boolean initOnStart = false;
-
-    @Autowired(required = false)
-    public void setNotifier(InitModelMessageNotifier notifier) {
-        this.notifier = notifier;
-    }
-
-    @Autowired(required = false)
-    public void setExceptionFoundRelevantModelNotifier(ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier) {
-        this.exceptionFoundRelevantModelNotifier = exceptionFoundRelevantModelNotifier;
-    }
 
     /**
      * Sets bot token for authentication in Telegram.
@@ -81,9 +71,19 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
         this.initOnStart = initOnStart;
     }
 
-    public DefaultAudioTranscribe(DefaultAbsSender sender){
+    @Autowired
+    public void setNotifier(InitModelMessageNotifier notifier) {
+        this.notifier = notifier;
+    }
+
+    @Autowired
+    public void setExceptionFoundRelevantModelNotifier(ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier) {
+        this.exceptionFoundRelevantModelNotifier = exceptionFoundRelevantModelNotifier;
+    }
+
+    @Autowired
+    public void setSender(DefaultAbsSender sender) {
         this.sender = sender;
-        logger.info("DefaultAudioTranscribe initialized with sender: {}", sender);
     }
 
     @PostConstruct
@@ -117,26 +117,24 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
         logger.info("Added language model for {}: {}", languageCode, modelPath);
     }
 
-    private Model getModel(String language,Long chatId) throws IOException {
-        SoftReference<Model> softRef = modelCache.get(language);
-        Model model = (softRef != null) ? softRef.get() : null;
-
-        if (model != null) {
-            logger.debug("Model for language {} found in cache.", language);
-            return model;
-        }
-        if (!initOnStart){
-            return initModelAndNotify(language,chatId);
-        }else {
+    private Model getModel(String language, Long chatId) throws IOException {
+        return modelCache.computeIfAbsent(language, lang -> {
             try {
-                return initModel(language);
-            }catch (RelevantVoiceModelAbsentException e){
-                exceptionFoundRelevantModelNotifier.sendExceptionFoundRelevantModelMessage(chatId,languageModels);
+                if (!initOnStart) {
+                    return initModelAndNotify(lang, chatId);
+                } else {
+                    return initModel(lang);
+                }
+            } catch (RelevantVoiceModelAbsentException e) {
+                exceptionFoundRelevantModelNotifier.sendExceptionFoundRelevantModelMessage(chatId, languageModels);
                 logger.error("Exception occurred: class: {}, reason: {}", e.getClass().getName(), e.getMessage());
-                throw new RuntimeException("class: "+e.getClass()+", reason: "+e.getMessage());
+                throw new RuntimeException("class: " + e.getClass() + ", reason: " + e.getMessage());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
+        });
     }
+
 
     private Model initModel(String language) throws IOException, RelevantVoiceModelAbsentException {
         logger.debug("Attempting to initialize model for language: {}", language);
@@ -150,7 +148,7 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
         logger.debug("Found model path '{}' for language '{}'", modelPath, language);
 
         Model model = new Model(modelPath);
-        modelCache.put(language, new SoftReference<>(model));
+        modelCache.put(language, model);
 
         logger.info("Successfully loaded and cached model for language: {}", language);
 
@@ -181,7 +179,7 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
     @Override
     public String voiceToText(Voice voice,String languageCode,Long chatId) {
         logger.info("Starting voice transcription process for language: {}", languageCode);
-        validateArguments(voice, languageCode);
+        validateArgumentsVoice(voice, languageCode);
 
         Model model;
         try {
@@ -193,7 +191,7 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
         logger.debug("Using Model for language: {}", languageCode);
 
         try {
-            File file = getFile(voice);
+            File file = getVoiceFile(voice);
             logger.debug("Obtained file for voice id {}: {}", voice.getFileId(), file);
 
             String fileUrl = file.getFileUrl(token);
@@ -221,14 +219,107 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
         }
     }
 
-    private void validateArguments(Voice voice, String language) {
-        if (language == null || language.isEmpty()) {
-            String errorMessage = "Language parameter must not be null or empty.";
+    @Override
+    public String voiceToText(Video video, String languageCode, Long chatId) {
+        logger.info("Starting video voice transcription process for language: {}", languageCode);
+        validateArgumentsVideo(video, languageCode);
+
+        Model model;
+        try {
+            model = getModel(languageCode, chatId);
+        } catch (IOException e) {
+            logger.error("Error loading model for language: {}", languageCode, e);
+            throw new RuntimeException(e);
+        }
+        logger.debug("Using Model for language: {}", languageCode);
+
+        try {
+            File videoFile = getVideoFile(video);
+            logger.debug("Obtained file for video id: {}", video.getFileId());
+
+            String fileUrl = videoFile.getFileUrl(token);
+            logger.debug("Obtained file URL: {}", fileUrl);
+
+            String baseName = "video_" + System.currentTimeMillis();
+
+            String extension = videoFile.getFilePath().substring(videoFile.getFilePath().lastIndexOf('.') + 1);
+            java.io.File downloadedVideo = new java.io.File(baseName + "." + extension);
+            logger.info("Downloading video file to: {}", downloadedVideo.getAbsolutePath());
+            upload(fileUrl, downloadedVideo);
+            logger.info("Video file downloaded successfully to: {}", downloadedVideo.getAbsolutePath());
+
+            java.io.File extractedAudio = new java.io.File(baseName + ".wav");
+            logger.info("Extracting audio from video to: {}", extractedAudio.getAbsolutePath());
+            extractAudio(downloadedVideo, extractedAudio);
+            logger.info("Audio extracted successfully");
+
+            String result = recognizeSpeech(extractedAudio, model);
+            logger.info("Speech recognized successfully: {}", result);
+
+            deleteAllDownloadedAudio(downloadedVideo, extractedAudio);
+            logger.debug("Temporary audio files deleted.");
+
+            return result;
+        } catch (TelegramApiException | IOException | InterruptedException | UnsupportedAudioFileException e) {
+            logger.error("Error during video voice transcription process", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private void extractAudio(java.io.File videoFile, java.io.File outputAudioFile) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder(
+                "ffmpeg",
+                "-i", videoFile.getAbsolutePath(),
+                "-vn",
+                "-acodec", "pcm_s16le",
+                "-ar", "16000",
+                "-ac", "1",
+                outputAudioFile.getAbsolutePath()
+        );
+
+        pb.redirectErrorStream(true);
+
+        Process process = pb.start();
+
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.debug(line);
+            }
+        }
+
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new IOException("ffmpeg process exited with code " + exitCode);
+        }
+
+    }
+
+    private void validateArgumentsVoice(Voice voice, String language) {
+        validateArguments(language);
+        if (voice == null) {
+            String errorMessage = "Voice parameter must not be null.";
             logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
-        if (voice == null) {
-            String errorMessage = "Voice parameter must not be null.";
+        logger.debug("Arguments validated: language={}, voiceId={}, token={}", language, voice.getFileId(), token);
+    }
+
+    private void validateArgumentsVideo(Video video, String language) {
+        validateArguments(language);
+        if (video == null) {
+            String errorMessage = "Video parameter must not be null.";
+            logger.error(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+        logger.debug("Arguments validated: language={}, voiceId={}, token={}", language, video.getFileId(), token);
+    }
+
+    private void validateArguments(String language) {
+        if (language == null || language.isEmpty()) {
+            String errorMessage = "Language parameter must not be null or empty.";
             logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
@@ -237,13 +328,21 @@ public class DefaultAudioTranscribe implements AudioTranscribe {
             logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
-        logger.debug("Arguments validated: language={}, voiceId={}, token={}", language, voice.getFileId(), token);
     }
 
-    private File getFile(Voice voice) throws TelegramApiException {
+    private File getVoiceFile(Voice voice) throws TelegramApiException {
         logger.debug("Fetching file for voice id: {}", voice.getFileId());
         GetFile getFileMethod = new GetFile();
         getFileMethod.setFileId(voice.getFileId());
+        File file = sender.execute(getFileMethod);
+        logger.debug("File fetched: {}", file);
+        return file;
+    }
+
+    private File getVideoFile(Video video) throws TelegramApiException {
+        logger.debug("Fetching file for video id: {}", video.getFileId());
+        GetFile getFileMethod = new GetFile();
+        getFileMethod.setFileId(video.getFileId());
         File file = sender.execute(getFileMethod);
         logger.debug("File fetched: {}", file);
         return file;

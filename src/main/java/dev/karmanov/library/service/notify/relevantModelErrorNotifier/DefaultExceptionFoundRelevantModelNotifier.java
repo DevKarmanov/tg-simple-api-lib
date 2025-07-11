@@ -1,21 +1,19 @@
 package dev.karmanov.library.service.notify.relevantModelErrorNotifier;
 
 import dev.karmanov.library.service.notify.Notifier;
-import dev.karmanov.library.service.notify.processingMessageNotifier.DefaultProcessingMessageNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
 public class DefaultExceptionFoundRelevantModelNotifier implements ExceptionFoundRelevantModelNotifier {
     private static final Logger logger = LoggerFactory.getLogger(DefaultExceptionFoundRelevantModelNotifier.class);
-    private Notifier notifier;
+    private final Notifier notifier;
 
-    @Autowired(required = false)
-    public void setNotifier(Notifier notifier) {
+    public DefaultExceptionFoundRelevantModelNotifier(Notifier notifier) {
         this.notifier = notifier;
     }
+
 
     @Override
     public void sendExceptionFoundRelevantModelMessage(Long chatId, Map<String, String> languageModels) {

@@ -58,7 +58,9 @@ public enum UserState {
     /**
      * State when the bot is waiting for a location (geolocation) to be sent by the user.
      */
-    AWAITING_LOCATION
+    AWAITING_LOCATION,
+
+    AWAITING_VIDEO
 }
 
 

@@ -8,7 +8,6 @@ import dev.karmanov.library.service.register.utils.text.TextQualifier;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -25,31 +24,18 @@ import java.util.Set;
  */
 public class DefaultTextHandler implements TextHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTextHandler.class);
+    private final BotCommandRegister register;
+    private final TextQualifier textTypeTextQualifier;
+    private final Executor methodExecutor;
+    private final RoleChecker roleChecker;
 
-    private BotCommandRegister register;
-    private TextQualifier textTypeTextQualifier;
-    private Executor methodExecutor;
-    private RoleChecker roleChecker;
-
-    @Autowired(required = false)
-    public void setRoleChecker(RoleChecker roleChecker) {
+    public DefaultTextHandler(BotCommandRegister register, TextQualifier textTypeTextQualifier, Executor methodExecutor, RoleChecker roleChecker) {
+        this.register = register;
+        this.textTypeTextQualifier = textTypeTextQualifier;
+        this.methodExecutor = methodExecutor;
         this.roleChecker = roleChecker;
     }
 
-    @Autowired(required = false)
-    public void setTextTypeQualifier(TextQualifier textQualifier){
-        this.textTypeTextQualifier = textQualifier;
-    }
-
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
-        this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor executor){
-        this.methodExecutor = executor;
-    }
 
     /**
      * Processes the received text message or command update

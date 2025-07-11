@@ -11,6 +11,8 @@ import dev.karmanov.library.service.handlers.media.document.DefaultDocumentHandl
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.DefaultPhotoHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
+import dev.karmanov.library.service.handlers.media.video.DefaultVideoHandler;
+import dev.karmanov.library.service.handlers.media.video.VideoHandler;
 import dev.karmanov.library.service.handlers.media.voice.DefaultVoiceHandler;
 import dev.karmanov.library.service.handlers.media.voice.VoiceHandler;
 import dev.karmanov.library.service.handlers.schedule.DefaultScheduledMethodHandler;
@@ -40,6 +42,8 @@ import dev.karmanov.library.service.register.utils.media.DefaultMediaAvailabilit
 import dev.karmanov.library.service.register.utils.media.MediaQualifier;
 import dev.karmanov.library.service.register.utils.media.voice.AudioTranscribe;
 import dev.karmanov.library.service.register.utils.media.voice.DefaultAudioTranscribe;
+import dev.karmanov.library.service.register.utils.media.voice.executor.DefaultInterpreterExecutor;
+import dev.karmanov.library.service.register.utils.media.voice.executor.InterpreterExecutor;
 import dev.karmanov.library.service.register.utils.text.DefaultTextTypeTextQualifier;
 import dev.karmanov.library.service.register.utils.text.TextQualifier;
 import dev.karmanov.library.service.register.utils.user.DefaultRoleChecker;
@@ -105,54 +109,76 @@ public class TgSimpleApiConfig {
 
     @Bean
     @ConditionalOnMissingBean(Executor.class)
-    public Executor methodExecutor(){
-        return new DefaultMethodExecutor();
+    public Executor methodExecutor(UnexpectedExceptionNotifier notifier,
+                                   BotCommandRegister register){
+        return new DefaultMethodExecutor(notifier,register);
     }
 
     @Bean
     @ConditionalOnMissingBean(CallBackHandler.class)
-    public CallBackHandler callBackHandler(){
-        return new DefaultCallBackHandler();
+    public CallBackHandler callBackHandler(Executor methodExecutor,
+                                           BotCommandRegister register,
+                                           TextQualifier textTypeTextQualifier,
+                                           RoleChecker roleChecker){
+        return new DefaultCallBackHandler(methodExecutor,register,textTypeTextQualifier,roleChecker);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(VideoHandler.class)
+    public VideoHandler videoHandler(BotCommandRegister register,
+                                     RoleChecker roleChecker,
+                                     AudioTranscribe audioTranscribe,
+                                     InterpreterExecutor interpreterExecutor
+                                     ){
+        return new DefaultVideoHandler(register,roleChecker,audioTranscribe,interpreterExecutor);
     }
 
     @Bean
     @ConditionalOnMissingBean(PhotoHandler.class)
-    public PhotoHandler photoHandler(DefaultAbsSender sender){
-        return new DefaultPhotoHandler(sender);
+    public PhotoHandler photoHandler(Executor methodExecutor,
+                                     BotCommandRegister register,
+                                     DefaultAbsSender sender,
+                                     RoleChecker roleChecker){
+        return new DefaultPhotoHandler(methodExecutor,register,sender,roleChecker);
     }
 
     @Bean
     @ConditionalOnMissingBean(MediaHandler.class)
-    public MediaHandler mediaHandler(){
-        return new DefaultMediaMessageHandler();
+    public MediaHandler mediaHandler(MediaQualifier mediaAvailabilityQualifier,
+                                     BotCommandRegister register,
+                                     Executor methodExecutor,
+                                     RoleChecker roleChecker){
+        return new DefaultMediaMessageHandler(mediaAvailabilityQualifier,register,methodExecutor,roleChecker);
     }
 
     @Bean
     @ConditionalOnMissingBean(AccessDeniedNotifier.class)
-    public AccessDeniedNotifier accessDeniedNotifier(){
-        return new DefaultAccessDeniedNotifier();
+    public AccessDeniedNotifier accessDeniedNotifier(Notifier notifier){
+        return new DefaultAccessDeniedNotifier(notifier);
     }
 
     @Bean
     @ConditionalOnMissingBean(ProcessingMessageNotifier.class)
-    public ProcessingMessageNotifier processingMessageNotifier(){
-        return new DefaultProcessingMessageNotifier();
+    public ProcessingMessageNotifier processingMessageNotifier(Notifier notifier){
+        return new DefaultProcessingMessageNotifier(notifier);
     }
 
     @Bean
     @ConditionalOnMissingBean(UnexpectedActionNotifier.class)
-    public UnexpectedActionNotifier unexpectedActionNotifier(){
-        return new DefaultUnexpectedActionNotifier();
+    public UnexpectedActionNotifier unexpectedActionNotifier(Notifier notifier){
+        return new DefaultUnexpectedActionNotifier(notifier);
     }
 
     @Bean
     @ConditionalOnMissingBean(UnexpectedExceptionNotifier.class)
-    public UnexpectedExceptionNotifier unexpectedExceptionNotifier(){return new DefaultUnexpectedExceptionMessageNotifier();}
+    public UnexpectedExceptionNotifier unexpectedExceptionNotifier(Notifier notifier){
+        return new DefaultUnexpectedExceptionMessageNotifier(notifier);
+    }
 
     @Bean
     @ConditionalOnMissingBean(VoiceRegexFailedNotify.class)
-    public VoiceRegexFailedNotify voiceRegexFailedNotify(){
-        return new DefaultVoiceRegexFailedNotify();
+    public VoiceRegexFailedNotify voiceRegexFailedNotify(Notifier notifier){
+        return new DefaultVoiceRegexFailedNotify(notifier);
     }
 
     @Bean
@@ -169,41 +195,72 @@ public class TgSimpleApiConfig {
 
     @Bean
     @ConditionalOnMissingBean(ExceptionFoundRelevantModelNotifier.class)
-    public ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier(){
-        return new DefaultExceptionFoundRelevantModelNotifier();
+    public ExceptionFoundRelevantModelNotifier exceptionFoundRelevantModelNotifier(Notifier notifier){
+        return new DefaultExceptionFoundRelevantModelNotifier(notifier);
     }
 
     @Bean
     @ConditionalOnMissingBean(LocationHandler.class)
-    public LocationHandler locationHandler(){return new DefaultLocationHandler();}
+    public LocationHandler locationHandler(Executor methodExecutor,
+                                           BotCommandRegister register,
+                                           RoleChecker roleChecker){
+        return new DefaultLocationHandler(methodExecutor,register,roleChecker);
+    }
 
     @Bean
     @ConditionalOnMissingBean(TextHandler.class)
-    public TextHandler textHandler(){
-        return new DefaultTextHandler();
+    public TextHandler textHandler(BotCommandRegister register,
+                                   TextQualifier textTypeTextQualifier,
+                                   Executor methodExecutor,
+                                   RoleChecker roleChecker){
+        return new DefaultTextHandler(register,textTypeTextQualifier,methodExecutor,roleChecker);
     }
 
     @Bean
     @ConditionalOnMissingBean(ScheduledHandler.class)
-    public ScheduledHandler scheduledHandler(){
-        return new DefaultScheduledMethodHandler();
+    public ScheduledHandler scheduledHandler(BotCommandRegister register,
+                                             ExecutorService executorService,
+                                             Executor methodExecutor,
+                                             TaskScheduler scheduler,
+                                             StateManager manager){
+        return new DefaultScheduledMethodHandler(register,executorService,methodExecutor,scheduler,manager);
     }
 
     @Bean
     @ConditionalOnMissingBean(RoleChecker.class)
-    public RoleChecker roleChecker(){return new DefaultRoleChecker();}
+    public RoleChecker roleChecker(AccessDeniedNotifier notifier,
+                                   StateManager manager){
+        return new DefaultRoleChecker(notifier,manager);
+    }
 
     @Bean
     @ConditionalOnMissingBean(DocumentHandler.class)
-    public DocumentHandler documentHandler(){
-        return new DefaultDocumentHandler();
+    public DocumentHandler documentHandler(Executor methodExecutor,
+                                           BotCommandRegister register,
+                                           RoleChecker roleChecker){
+        return new DefaultDocumentHandler(methodExecutor,register,roleChecker);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(InterpreterExecutor.class)
+    public InterpreterExecutor interpreterExecutor(Executor methodExecutor,
+                                                   ProcessingMessageNotifier notifier,
+                                                   ExecutorService executorService,
+                                                   VoiceRegexFailedNotify voiceRegexFailedNotify){
+        return new DefaultInterpreterExecutor(methodExecutor,notifier,executorService,voiceRegexFailedNotify);
     }
 
     @Bean
     @ConditionalOnMissingBean(VoiceHandler.class)
-    public VoiceHandler voiceHandler(){return new DefaultVoiceHandler();}
+    public VoiceHandler voiceHandler(BotCommandRegister register,
+                                     RoleChecker roleChecker,
+                                     AudioTranscribe audioTranscribe,
+                                     InterpreterExecutor interpreterExecutor
+    ){
+        return new DefaultVoiceHandler(register,roleChecker,audioTranscribe,interpreterExecutor);
+    }
 
     @Bean
     @ConditionalOnMissingBean(AudioTranscribe.class)
-    public AudioTranscribe audioTranscribe(DefaultAbsSender sender) {return new DefaultAudioTranscribe(sender);}
+    public AudioTranscribe audioTranscribe() {return new DefaultAudioTranscribe();}
 }

@@ -3,19 +3,18 @@ package dev.karmanov.library.service.notify.unexcpectedExceptionMessageNotifier;
 import dev.karmanov.library.service.notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Default implementation of {@link UnexpectedExceptionNotifier}.
  * Logs the exception and optionally notifies the user via {@link Notifier}.
  */
 public class DefaultUnexpectedExceptionMessageNotifier implements UnexpectedExceptionNotifier{
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnexpectedExceptionMessageNotifier.class);
-    private Notifier notifier;
+    private final Notifier notifier;
 
-    @Autowired(required = false)
-    public void setNotifier(Notifier notifier) {
+    public DefaultUnexpectedExceptionMessageNotifier(Notifier notifier) {
         this.notifier = notifier;
     }
+
     public <T extends Exception> void sendUnexpectedExceptionMessage(Long chatId, T exception) {
         logger.error("Произошло непредвиденное исключение для пользователя с chatId={}: {}", chatId, exception.getMessage(), exception);
 

@@ -7,6 +7,7 @@ import dev.karmanov.library.service.handlers.location.LocationHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
+import dev.karmanov.library.service.handlers.media.video.VideoHandler;
 import dev.karmanov.library.service.handlers.media.voice.VoiceHandler;
 import dev.karmanov.library.service.handlers.schedule.ScheduledHandler;
 import dev.karmanov.library.service.handlers.text.TextHandler;
@@ -43,10 +44,16 @@ public class DefaultBotHandler implements BotHandler{
     private VoiceHandler voiceHandler;
     private LocationHandler locationHandler;
     private ScheduledHandler scheduledHandler;
+    private VideoHandler videoHandler;
     private final AtomicBoolean isScheduled = new AtomicBoolean(false);
     private static final Logger logger = LoggerFactory.getLogger(DefaultBotHandler.class);
 
-    @Autowired(required = false)
+    @Autowired
+    public void setVideoHandler(VideoHandler videoHandler) {
+        this.videoHandler = videoHandler;
+    }
+
+    @Autowired
     public void setLocationHandler(LocationHandler locationHandler) {
         this.locationHandler = locationHandler;
     }
@@ -56,7 +63,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param notifier the UnexpectedActionNotifier instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setNotifier(UnexpectedActionNotifier notifier) {
         this.notifier = notifier;
     }
@@ -66,7 +73,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param mediaHandler the MediaHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setMediaHandler(MediaHandler mediaHandler) {
         this.mediaHandler = mediaHandler;
     }
@@ -76,7 +83,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param textHandler the TextHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setTextHandler(TextHandler textHandler) {
         this.textHandler = textHandler;
     }
@@ -86,7 +93,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param photoHandler the PhotoHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setPhotoHandler(PhotoHandler photoHandler) {
         this.photoHandler = photoHandler;
     }
@@ -96,7 +103,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param callBackHandler the CallBackHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setCallBackHandler(CallBackHandler callBackHandler) {
         this.callBackHandler = callBackHandler;
     }
@@ -106,7 +113,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param manager the StateManager instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setManager(StateManager manager) {
         this.manager = manager;
     }
@@ -116,7 +123,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param executorService the ExecutorService instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
     }
@@ -126,7 +133,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param qualifier the MediaQualifier instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setMediaQualifier(MediaQualifier qualifier) {
         this.mediaQualifier = qualifier;
     }
@@ -136,7 +143,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param scheduledHandler the ScheduledHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setScheduledHandler(ScheduledHandler scheduledHandler) {
         this.scheduledHandler = scheduledHandler;
     }
@@ -146,7 +153,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param documentHandler the DocumentHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setDocumentHandler(DocumentHandler documentHandler) {
         this.documentHandler = documentHandler;
     }
@@ -156,7 +163,7 @@ public class DefaultBotHandler implements BotHandler{
      *
      * @param voiceHandler the VoiceHandler instance.
      */
-    @Autowired(required = false)
+    @Autowired
     public void setVoiceHandler(VoiceHandler voiceHandler) {
         this.voiceHandler = voiceHandler;
     }
@@ -198,6 +205,9 @@ public class DefaultBotHandler implements BotHandler{
             } else if (userStates.contains(UserState.AWAITING_DOCUMENT) && message.hasDocument()){
                 logger.info("User is awaiting a document and it is present.");
                 executorService.execute(()-> documentHandler.handle(userAwaitingAction,update));
+            } else if (userStates.contains(UserState.AWAITING_VIDEO) && message.hasVideo()){
+                logger.info("User is awaiting a video and it is present.");
+                executorService.execute(()-> videoHandler.handle(userAwaitingAction,update));
             } else if (userStates.contains(UserState.AWAITING_VOICE) && message.hasVoice()){
                 logger.info("User is awaiting a voice and it is present.");
                 executorService.execute(()-> voiceHandler.handle(userAwaitingAction,update));

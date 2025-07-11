@@ -8,7 +8,6 @@ import dev.karmanov.library.service.register.utils.text.TextQualifier;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -30,30 +29,17 @@ import java.util.Set;
  */
 public class DefaultCallBackHandler implements CallBackHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCallBackHandler.class);
-    private Executor methodExecutor;
-    private BotCommandRegister register;
-    private TextQualifier textTypeTextQualifier;
+    private final Executor methodExecutor;
+    private final BotCommandRegister register;
+    private final TextQualifier textTypeTextQualifier;
 
-    private RoleChecker roleChecker;
+    private final RoleChecker roleChecker;
 
-    @Autowired(required = false)
-    public void setRoleChecker(RoleChecker roleChecker) {
-        this.roleChecker = roleChecker;
-    }
-
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
+    public DefaultCallBackHandler(Executor methodExecutor, BotCommandRegister register, TextQualifier textTypeTextQualifier, RoleChecker roleChecker) {
+        this.methodExecutor = methodExecutor;
         this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor executor){
-        this.methodExecutor = executor;
-    }
-
-    @Autowired(required = false)
-    public void setTextTypeQualifier(TextQualifier textQualifier){
-        this.textTypeTextQualifier = textQualifier;
+        this.textTypeTextQualifier = textTypeTextQualifier;
+        this.roleChecker = roleChecker;
     }
 
     /**

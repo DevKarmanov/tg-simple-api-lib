@@ -5,7 +5,6 @@ import dev.karmanov.library.service.notify.accessDenied.AccessDeniedNotifier;
 import dev.karmanov.library.service.state.StateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.Set;
@@ -21,18 +20,14 @@ import java.util.Set;
  */
 public class DefaultRoleChecker implements RoleChecker {
     private static final Logger logger = LoggerFactory.getLogger(DefaultRoleChecker.class);
-    private AccessDeniedNotifier notifier;
-    private StateManager manager;
+    private final AccessDeniedNotifier notifier;
+    private final StateManager manager;
 
-    @Autowired(required = false)
-    public void setManager(StateManager manager){
+    public DefaultRoleChecker(AccessDeniedNotifier notifier, StateManager manager) {
+        this.notifier = notifier;
         this.manager = manager;
     }
 
-    @Autowired(required = false)
-    public void setAccessDeniedNotifier(AccessDeniedNotifier notifier) {
-        this.notifier = notifier;
-    }
 
     /**
      * Checks whether a user has access to a specific method based on their roles.

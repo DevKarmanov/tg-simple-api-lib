@@ -8,7 +8,6 @@ import dev.karmanov.library.service.register.utils.media.MediaQualifier;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -25,32 +24,20 @@ import java.util.Set;
  */
 public class DefaultMediaMessageHandler implements MediaHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultMediaMessageHandler.class);
-    private MediaQualifier mediaAvailabilityQualifier;
-    private BotCommandRegister register;
+    private final MediaQualifier mediaAvailabilityQualifier;
+    private final BotCommandRegister register;
 
-    private Executor methodExecutor;
+    private final Executor methodExecutor;
 
-    private RoleChecker roleChecker;
+    private final RoleChecker roleChecker;
 
-    @Autowired(required = false)
-    public void setRoleChecker(RoleChecker roleChecker) {
+    public DefaultMediaMessageHandler(MediaQualifier mediaAvailabilityQualifier, BotCommandRegister register, Executor methodExecutor, RoleChecker roleChecker) {
+        this.mediaAvailabilityQualifier = mediaAvailabilityQualifier;
+        this.register = register;
+        this.methodExecutor = methodExecutor;
         this.roleChecker = roleChecker;
     }
 
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
-        this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor executor){
-        this.methodExecutor = executor;
-    }
-
-    @Autowired(required = false)
-    public void setMediaAvailabilityQualifier(MediaQualifier qualifier){
-        this.mediaAvailabilityQualifier = qualifier;
-    }
 
     /**
      * Processes a received media message

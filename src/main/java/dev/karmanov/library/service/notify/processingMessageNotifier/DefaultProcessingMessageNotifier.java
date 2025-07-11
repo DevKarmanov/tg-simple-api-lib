@@ -3,15 +3,12 @@ package dev.karmanov.library.service.notify.processingMessageNotifier;
 import dev.karmanov.library.service.notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class DefaultProcessingMessageNotifier implements ProcessingMessageNotifier {
     private static final Logger logger = LoggerFactory.getLogger(DefaultProcessingMessageNotifier.class);
+    private final Notifier notifier;
 
-    private Notifier notifier;
-
-    @Autowired(required = false)
-    public void setNotifier(Notifier notifier) {
+    public DefaultProcessingMessageNotifier(Notifier notifier) {
         this.notifier = notifier;
     }
 

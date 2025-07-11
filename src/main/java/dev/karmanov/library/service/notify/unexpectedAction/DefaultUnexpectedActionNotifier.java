@@ -4,7 +4,6 @@ import dev.karmanov.library.model.user.UserState;
 import dev.karmanov.library.service.notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,12 +11,12 @@ import java.util.stream.Collectors;
 public class DefaultUnexpectedActionNotifier implements UnexpectedActionNotifier {
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnexpectedActionNotifier.class);
 
-    private Notifier notifier;
+    private final Notifier notifier;
 
-    @Autowired(required = false)
-    public void setNotifier(Notifier notifier) {
+    public DefaultUnexpectedActionNotifier(Notifier notifier) {
         this.notifier = notifier;
     }
+
 
     @Override
     public void sendUnexpectedActionMessage(Long chatId, Set<UserState> currentUserStates) {

@@ -7,10 +7,7 @@ import dev.karmanov.library.model.methodHolders.LocationMethodHolder;
 import dev.karmanov.library.model.methodHolders.ScheduledMethodHolder;
 import dev.karmanov.library.model.methodHolders.SpecialAccessMethodHolder;
 import dev.karmanov.library.model.methodHolders.TextMethodHolder;
-import dev.karmanov.library.model.methodHolders.media.DocumentMethodHolder;
-import dev.karmanov.library.model.methodHolders.media.MediaMethodHolder;
-import dev.karmanov.library.model.methodHolders.media.PhotoMethodHolder;
-import dev.karmanov.library.model.methodHolders.media.VoiceMethodHolder;
+import dev.karmanov.library.model.methodHolders.media.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -22,9 +19,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 
-//todo сделать интерфейс
 public class BotCommandRegister {
     private final List<MediaMethodHolder> botMediaMethods = new ArrayList<>();
+    private final List<VideoMethodHolder> botVideoMethods = new ArrayList<>();
     private final List<TextMethodHolder> botTextMethods = new ArrayList<>();
     private final Map<Method, SpecialAccessMethodHolder> specialAccessMethodHolders = new HashMap<>();
     private final List<PhotoMethodHolder> botPhotoMethods = new ArrayList<>();
@@ -47,6 +44,7 @@ public class BotCommandRegister {
         handlerMap.put(BotDocument.class, this::processDocument);
         handlerMap.put(BotVoice.class, this::processVoice);
         handlerMap.put(BotLocation.class, this::processLocation);
+        handlerMap.put(BotVideo.class, this::processVideo);
     }
 
     @Autowired
@@ -56,6 +54,10 @@ public class BotCommandRegister {
 
     public List<MediaMethodHolder> getBotMediaMethods() {
         return botMediaMethods;
+    }
+
+    public List<VideoMethodHolder> getBotVideoMethods() {
+        return botVideoMethods;
     }
 
     public List<TextMethodHolder> getBotTextMethods() {
@@ -240,6 +242,25 @@ public class BotCommandRegister {
                 botLocation.minAccuracyMeters(),
                 botLocation.maxAgeSeconds(),
                 botLocation.requireExplicitLocation()
+        ));
+    }
+
+    private void processVideo(Method method) {
+        BotVideo botVideo = method.getAnnotation(BotVideo.class);
+        botVideoMethods.add(new VideoMethodHolder(
+                method,
+                botVideo.actionName(),
+                botVideo.order(),
+                botVideo.minFileSize(),
+                botVideo.maxFileSize(),
+                botVideo.minDurationSeconds(),
+                botVideo.maxDurationSeconds(),
+                botVideo.minResolution(),
+                botVideo.maxResolution(),
+                botVideo.format(),
+                botVideo.textInterpreter(),
+                botVideo.languageCode(),
+                botVideo.regex()
         ));
     }
 }

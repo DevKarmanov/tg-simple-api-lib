@@ -6,7 +6,6 @@ import dev.karmanov.library.service.register.executor.Executor;
 import dev.karmanov.library.service.register.utils.user.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.objects.File;
@@ -39,28 +38,19 @@ import java.util.Set;
  */
 public class DefaultPhotoHandler implements PhotoHandler {
     private static final Logger logger = LoggerFactory.getLogger(DefaultPhotoHandler.class);
-    private Executor methodExecutor;
-    private BotCommandRegister register;
+    private final Executor methodExecutor;
+    private final BotCommandRegister register;
     private final DefaultAbsSender sender;
-    private RoleChecker roleChecker;
+    private final RoleChecker roleChecker;
 
-    public DefaultPhotoHandler(DefaultAbsSender sender) {
-        this.sender = sender;
-    }
-
-    @Autowired(required = false)
-    public void setRoleChecker(RoleChecker roleChecker) {
-        this.roleChecker = roleChecker;
-    }
-
-    @Autowired(required = false)
-    public void setRegister(BotCommandRegister register){
+    public DefaultPhotoHandler(Executor methodExecutor,
+                               BotCommandRegister register,
+                               DefaultAbsSender sender,
+                               RoleChecker roleChecker) {
+        this.methodExecutor = methodExecutor;
         this.register = register;
-    }
-
-    @Autowired(required = false)
-    public void setMethodExecutor(Executor executor){
-        this.methodExecutor = executor;
+        this.sender = sender;
+        this.roleChecker = roleChecker;
     }
 
     /**
