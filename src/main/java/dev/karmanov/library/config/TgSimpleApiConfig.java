@@ -11,6 +11,8 @@ import dev.karmanov.library.service.handlers.media.document.DefaultDocumentHandl
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.DefaultPhotoHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
+import dev.karmanov.library.service.handlers.media.sticker.DefaultStickerHandler;
+import dev.karmanov.library.service.handlers.media.sticker.StickerHandler;
 import dev.karmanov.library.service.handlers.media.video.DefaultVideoHandler;
 import dev.karmanov.library.service.handlers.media.video.VideoHandler;
 import dev.karmanov.library.service.handlers.media.voice.DefaultVoiceHandler;
@@ -140,6 +142,14 @@ public class TgSimpleApiConfig {
                                      DefaultAbsSender sender,
                                      RoleChecker roleChecker){
         return new DefaultPhotoHandler(methodExecutor,register,sender,roleChecker);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(StickerHandler.class)
+    public StickerHandler stickerHandler(Executor methodExecutor,
+                                         BotCommandRegister register,
+                                         RoleChecker roleChecker){
+        return new DefaultStickerHandler(methodExecutor,register,roleChecker);
     }
 
     @Bean

@@ -2,6 +2,7 @@ package dev.karmanov.library.service.register;
 
 import dev.karmanov.library.annotation.botActivity.RoleBasedAccess;
 import dev.karmanov.library.annotation.userActivity.*;
+import dev.karmanov.library.annotation.userActivity.sticker.BotSticker;
 import dev.karmanov.library.model.message.TextType;
 import dev.karmanov.library.model.methodHolders.LocationMethodHolder;
 import dev.karmanov.library.model.methodHolders.ScheduledMethodHolder;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class BotCommandRegister {
+    private final List<StickerMethodHolder> botStickerMethods = new ArrayList<>();
     private final List<MediaMethodHolder> botMediaMethods = new ArrayList<>();
     private final List<VideoMethodHolder> botVideoMethods = new ArrayList<>();
     private final List<TextMethodHolder> botTextMethods = new ArrayList<>();
@@ -45,6 +47,7 @@ public class BotCommandRegister {
         handlerMap.put(BotVoice.class, this::processVoice);
         handlerMap.put(BotLocation.class, this::processLocation);
         handlerMap.put(BotVideo.class, this::processVideo);
+        handlerMap.put(BotSticker.class, this::processSticker);
     }
 
     @Autowired
@@ -54,6 +57,10 @@ public class BotCommandRegister {
 
     public List<MediaMethodHolder> getBotMediaMethods() {
         return botMediaMethods;
+    }
+
+    public List<StickerMethodHolder> getBotStickerMethods() {
+        return botStickerMethods;
     }
 
     public List<VideoMethodHolder> getBotVideoMethods() {
@@ -191,6 +198,24 @@ public class BotCommandRegister {
                 botText.text().toLowerCase(Locale.ROOT).strip(),
                 botText.isRegex(),
                 botText.order()));
+    }
+
+    private void processSticker(Method method) {
+        BotSticker botSticker = method.getAnnotation(BotSticker.class);
+        botStickerMethods.add(new StickerMethodHolder(
+                method,
+                botSticker.actionName(),
+                botSticker.order(),
+                botSticker.emoji(),
+                botSticker.packageName(),
+                botSticker.type(),
+                botSticker.customEmoji(),
+                botSticker.fileUniqueId(),
+                botSticker.minWidth(),
+                botSticker.minHeight(),
+                botSticker.maxWidth(),
+                botSticker.maxHeight()
+        ));
     }
 
     private void processCallBack(Method method){

@@ -60,7 +60,8 @@ public enum UserState {
      */
     AWAITING_LOCATION,
 
-    AWAITING_VIDEO
+    AWAITING_VIDEO,
+    AWAITING_STICKER
 }
 
 

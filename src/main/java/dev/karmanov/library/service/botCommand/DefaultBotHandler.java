@@ -7,6 +7,7 @@ import dev.karmanov.library.service.handlers.location.LocationHandler;
 import dev.karmanov.library.service.handlers.media.MediaHandler;
 import dev.karmanov.library.service.handlers.media.document.DocumentHandler;
 import dev.karmanov.library.service.handlers.media.photo.PhotoHandler;
+import dev.karmanov.library.service.handlers.media.sticker.StickerHandler;
 import dev.karmanov.library.service.handlers.media.video.VideoHandler;
 import dev.karmanov.library.service.handlers.media.voice.VoiceHandler;
 import dev.karmanov.library.service.handlers.schedule.ScheduledHandler;
@@ -39,6 +40,7 @@ public class DefaultBotHandler implements BotHandler{
     private MediaHandler mediaHandler;
     private TextHandler textHandler;
     private PhotoHandler photoHandler;
+    private StickerHandler stickerHandler;
     private CallBackHandler callBackHandler;
     private DocumentHandler documentHandler;
     private VoiceHandler voiceHandler;
@@ -47,6 +49,11 @@ public class DefaultBotHandler implements BotHandler{
     private VideoHandler videoHandler;
     private final AtomicBoolean isScheduled = new AtomicBoolean(false);
     private static final Logger logger = LoggerFactory.getLogger(DefaultBotHandler.class);
+
+    @Autowired
+    public void setStickerHandler(StickerHandler stickerHandler) {
+        this.stickerHandler = stickerHandler;
+    }
 
     @Autowired
     public void setVideoHandler(VideoHandler videoHandler) {
@@ -208,6 +215,9 @@ public class DefaultBotHandler implements BotHandler{
             } else if (userStates.contains(UserState.AWAITING_VIDEO) && message.hasVideo()){
                 logger.info("User is awaiting a video and it is present.");
                 executorService.execute(()-> videoHandler.handle(userAwaitingAction,update));
+            } else if (userStates.contains(UserState.AWAITING_STICKER) && message.hasSticker()) {
+                logger.info("User is awaiting a sticker and it is present.");
+                executorService.execute(()-> stickerHandler.handle(userAwaitingAction,update));
             } else if (userStates.contains(UserState.AWAITING_VOICE) && message.hasVoice()){
                 logger.info("User is awaiting a voice and it is present.");
                 executorService.execute(()-> voiceHandler.handle(userAwaitingAction,update));
